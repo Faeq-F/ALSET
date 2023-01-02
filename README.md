@@ -14,4 +14,5 @@ Morris Sardo
 <br>
 
 ## License
-Do not Dumb Licence v1
+The Unlicense
+https://unlicense.org
