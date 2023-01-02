@@ -1,0 +1,1 @@
+C:\Users\Faeq\AndroidStudioProjects\SelfDrivingCar\openCV\build\intermediates\cxx\Debug\6s6i6w51\obj\arm64-v8a
