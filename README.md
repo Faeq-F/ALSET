@@ -5,10 +5,22 @@ Self-driving car program using LeJOS (Java for Lego Mindstorms)
 [Powerpoint for project info.](<https://rhul-my.sharepoint.com/:p:/r/personal/zlac318_live_rhul_ac_uk/Documents/Self-Driving%20Car%20Intro.pptx?d=w283a12212025447faf8af1d9827a945b&csf=1&web=1&e=fPXIBq>)
 
 ## To do
-|            Faeq            |        Morris             |  |  |
-|----------------------------|---------------------------|----------------------------|---------------------------|
-|                            |                           |                            |                           |
-|                            |                           |                            |                           |
+|            Faeq            |
+|----------------------------|
+- [ ] task
+
+|         Morris             |
+|----------------------------|
+- [ ] task
+
+|                        |
+|----------------------------|
+- [ ] task
+
+
+|                        |
+|----------------------------|
+- [ ] task
 
 | Java LeJOS program (Robot) | OpenCV Android app (Phone) |
 |----------------------------|----------------------------|
