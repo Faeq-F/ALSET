@@ -13,12 +13,12 @@ Self-driving car program using LeJOS (Java for Lego Mindstorms)
 |----------------------------|
 - [ ] task
 
-|                        |
+|         Matthew            |
 |----------------------------|
 - [ ] task
 
 
-|                        |
+|           Leonardo         |
 |----------------------------|
 - [ ] task
 
@@ -32,7 +32,9 @@ Faeq Faisal
 <br>
 Morris Sardo
 <br>
+Matthew Newbury
 <br>
+Leonardo Loureiro
 
 ## License
 The Unlicense<br>
