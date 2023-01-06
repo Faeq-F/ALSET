@@ -7,7 +7,7 @@ Self-driving car program using LeJOS (Java for Lego Mindstorms)
 ## To do
 |            Faeq            |
 |----------------------------|
-- [ ] task
+- [ ] Check everyone knows how to use git in android studio
 
 |         Morris             |
 |----------------------------|
