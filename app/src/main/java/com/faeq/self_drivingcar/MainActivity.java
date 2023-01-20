@@ -20,13 +20,15 @@ import org.opencv.core.Mat;
 //----------------------------------------------------------------------------------------------------------
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
     //------------------------------------------------------------------------------------------------------
-    //Tag for activity (we only have one so this is the MainActivity)
+    //Tag for activity (So we know where logs are coming from)
     private static final String TAG = "MainActivity";
     //For Camera View
     JavaCameraView CameraView;
     //specifying that we are using the back camera (unable to specify wide-lens camera - maybe look into later)
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
     Mat mRGBA;
+    //status
+    private boolean sending = false;
     //Code for camera permissions
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     //------------------------------------------------------------------------------------------------------
@@ -70,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
         //fullscreen Camera view
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //Start bluetooth connection with robot here
+        //Set status to sending here, once bluetooth connection is established
     }
     //------------------------------------------------------------------------------------------------------
     //No need to manipulate frames - due to using back camera
@@ -77,11 +81,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onCameraViewStarted(int width, int height) {}
     //------------------------------------------------------------------------------------------------------
     @Override
-    public void onCameraViewStopped() { try {mRGBA.release();} catch(NullPointerException e){Toast.makeText(this, "Started getting frames", Toast.LENGTH_LONG).show();}}
+    public void onCameraViewStopped() { try {mRGBA.release();} catch(NullPointerException e){Log.d(TAG, "Started getting frames");}}
     //------------------------------------------------------------------------------------------------------
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        //return the frame's matrix
         mRGBA = inputFrame.rgba();
+        // if (sending) ...
+        //process frame here - to find track and send movement info. to robot
         return mRGBA;
     }
     //------------------------------------------------------------------------------------------------------
