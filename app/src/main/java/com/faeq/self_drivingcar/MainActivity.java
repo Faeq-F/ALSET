@@ -16,7 +16,12 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 //----------------------------------------------------------------------------------------------------------
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
     //------------------------------------------------------------------------------------------------------
@@ -26,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     JavaCameraView CameraView;
     //specifying that we are using the back camera (unable to specify wide-lens camera - maybe look into later)
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
-    Mat mRGBA;
+    Mat mRGBA, mGray;
     //status
     private boolean sending = false;
     //Code for camera permissions
@@ -76,19 +81,43 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         //Set status to sending here, once bluetooth connection is established
     }
     //------------------------------------------------------------------------------------------------------
-    //No need to manipulate frames - due to using back camera
+    //creates matrix for frame processing
     @Override
-    public void onCameraViewStarted(int width, int height) {}
+    public void onCameraViewStarted(int width, int height) { mRGBA = new Mat(height, width, CvType.CV_8UC4); }
     //------------------------------------------------------------------------------------------------------
     @Override
-    public void onCameraViewStopped() { try {mRGBA.release();} catch(NullPointerException e){Log.d(TAG, "Started getting frames");}}
+    public void onCameraViewStopped() { try {mRGBA.release();} catch(NullPointerException e){Log.d(TAG, "No frame to release");}}
     //------------------------------------------------------------------------------------------------------
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        //return the frame's matrix
+        //the frame's matrices
         mRGBA = inputFrame.rgba();
         // if (sending) ...
-        //process frame here - to find track and send movement info. to robot
+        //process frame here - to find track
+
+        //edge detection to find lines
+        Mat edges = new Mat();
+        //using Canny algorithm from OpenCV for edge detection
+        Imgproc.Canny(mRGBA, edges, 80, 200);
+
+        //using edges to find lines
+        Mat lines = new Mat();
+        //using Hough algorithm from OpenCV for line detection (still need to adjust these values)
+        Imgproc.HoughLinesP(edges, lines, 1, Math.PI / 180,100,100);
+        //loop through for each line
+        for (int i = 0; i < lines.rows(); i++) {
+            double[] vec = lines.get(i, 0);
+            double x1 = vec[0],
+                    y1 = vec[1],
+                    x2 = vec[2],
+                    y2 = vec[3];
+            Point start = new Point(x1, y1);
+            Point end = new Point(x2, y2);
+            //draw line on original frame            (color of line)
+            Imgproc.line(mRGBA, start, end, new Scalar(0, 255, 0), 5);
+        }
+        //then send movement info. to robot
+        //send to view
         return mRGBA;
     }
     //------------------------------------------------------------------------------------------------------
