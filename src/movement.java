@@ -33,7 +33,6 @@ public class movement {
 		mL.endSynchronization();
 	}
 	
-	//Car turn left ninety degrees
 	public static void turnLeft() {
 		movement.mL.startSynchronization();
 		movement.mL.backward();
@@ -42,7 +41,6 @@ public class movement {
 		Delay.msDelay(1000);
 	}
 	
-	//Car turn right ninety degrees
 	public static void turnRight() {
 		movement.mL.startSynchronization();
 		movement.mL.forward();
@@ -51,7 +49,6 @@ public class movement {
 		Delay.msDelay(1000);
 	}
 	
-	//Car stop
 	public static void stop() {
 		mL.startSynchronization();
 		mL.stop();
@@ -59,7 +56,6 @@ public class movement {
 		mL.endSynchronization();
 	}
 	
-	//Set the speed of the car
 	public static void setSpeed(int speed) {
 		mL.setSpeed(speed);
 		mR.setSpeed(speed);
