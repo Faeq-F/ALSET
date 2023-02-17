@@ -1,6 +1,23 @@
+import lejos.robotics.subsumption.Behavior;
 
-public class DetectObstruction {
+public class ObjectTraversal implements Behavior{
 
+	@Override
+	public boolean takeControl() {
+		return false;
+		
+	}
+
+	@Override
+	public void action() {
+		
+	}
+
+	@Override
+	public void suppress() {
+		
+	}
+	
 	public static void main(String[] args) {
 		// Turn 90 degrees on the stop
 		

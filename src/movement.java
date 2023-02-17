@@ -1,56 +1,52 @@
-import CarSelfDriver.Movement;
 import lejos.hardware.motor.BaseRegulatedMotor;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
+import lejos.hardware.port.SensorPort;
 import lejos.utility.Delay;
 
 public class movement {
 	
-	private static BaseRegulatedMotor mL;
-	private static BaseRegulatedMotor mR;
-	//
-	private static BaseRegulatedMotor sens;
+	private static int speed = 200; //decided upon as an appropriate speed
 	
-	private static int speed = 200;
-	
-	//
-	private static Port SensorMotor = MotorPort.C;
-	
+	private static Port UltraSonicMotorPort = MotorPort.C;
 	private static Port LeftMotorPort = MotorPort.A;
 	private static Port RightMotorPort = MotorPort.D;
 	
-	private static BaseRegulatedMotor sen;
+	private static BaseRegulatedMotor mL;
+	private static BaseRegulatedMotor mR;
+	private static BaseRegulatedMotor mUltraSonic;
+	
+	//create getters and setters for this field
+	private static float DistanceFromObject;
 	
 	//This main method used for test 
 	public static void main(String[] args) {
 		
 		//Initializing motors
-		
-		//
-		sens = new EV3LargeRegulatedMotor(SensorMotor);
-		
+		mUltraSonic = new EV3LargeRegulatedMotor(UltraSonicMotorPort);
 		mL = new EV3LargeRegulatedMotor(LeftMotorPort);
 		mR = new EV3LargeRegulatedMotor(RightMotorPort);
 		movement.setSpeed(speed);
 		mL.synchronizeWith(new BaseRegulatedMotor[] {mR});
-			
+		
 		//Testing code here:
+		
+		//Need to test UltraSonic sensor moving left 90 & right 90
+		
+		//Need to test robot moving 90 left & right
 		
 	}
 	
 	public static void SensLeft() {
-		movement.mL.startSynchronization();
-		movement.sen.backward();
-		movement.mL.endSynchronization();
+		mUltraSonic.backward();
 		Delay.msDelay(1000);
 	}
 	
 	public static void SensRight() {
-		movement.mL.startSynchronization();
-		movement.sen.forward();
-		movement.mL.endSynchronization();
+		mUltraSonic.forward();
 		Delay.msDelay(1000);
+	}
 	
 	public static void forward() {
 		mL.startSynchronization();
@@ -60,18 +56,18 @@ public class movement {
 	}
 	
 	public static void turnLeft() {
-		movement.mL.startSynchronization();
-		movement.mL.backward();
-		movement.mR.forward();
-		movement.mL.endSynchronization();
+		mL.startSynchronization();
+		mL.backward();
+		mR.forward();
+		mL.endSynchronization();
 		Delay.msDelay(1000);
 	}
 	
 	public static void turnRight() {
-		movement.mL.startSynchronization();
-		movement.mL.forward();
-		movement.mR.backward();
-		movement.mL.endSynchronization();
+		mL.startSynchronization();
+		mL.forward();
+		mR.backward();
+		mL.endSynchronization();
 		Delay.msDelay(1000);
 	}
 	
