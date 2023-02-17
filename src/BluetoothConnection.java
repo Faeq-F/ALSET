@@ -4,7 +4,7 @@ public class BluetoothConnection implements Behavior{
 
 	@Override
 	public boolean takeControl() {
-		return true;
+		return false;
 	}
 
 	@Override
