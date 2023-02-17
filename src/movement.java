@@ -2,7 +2,6 @@ import lejos.hardware.motor.BaseRegulatedMotor;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
-import lejos.hardware.port.SensorPort;
 import lejos.utility.Delay;
 
 public class movement {
