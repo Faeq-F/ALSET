@@ -23,6 +23,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -36,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private static final String TAG = "MainActivity";
     //For Camera View
     JavaCameraView CameraView;
+    private int[] CameraViewlocation = new int[2];
+    private int Camerax;
+    private int Cameray;
     //specifying that we are using the back camera (unable to specify wide-lens camera - maybe look into later)
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
     //Code for camera permissions
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Size SpectrumSize;
     private Scalar ContourColor;
     private Scalar BoundingBoxColor;
+
     //------------------------------------------------------------------------------------------------------
     //initialises camera when app is first launched or when onResume is called from phone sleep
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
@@ -96,6 +101,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         //fullscreen Camera view
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        CameraView.getLocationOnScreen(CameraViewlocation);
+        Camerax = CameraViewlocation[0];
+        Cameray = CameraViewlocation[1];
     }
     //------------------------------------------------------------------------------------------------------
     //No need to manipulate frames - due to using back camera
@@ -128,13 +137,26 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             List<MatOfPoint> contours = Detector.getContours();
             //draw contours found
             Imgproc.drawContours(mRgba, contours, -1, ContourColor, 5);
+            int numBoxes = 0;
             //Draw a bounding box around all contours
             for (MatOfPoint c : contours){
                 // Make sure contour area is large enough
-                if (Imgproc.contourArea(c) > 10)
-                    //Drawing rectangle
-                    Imgproc.rectangle(mRgba,Imgproc.boundingRect(c), BoundingBoxColor, 5);
+                if (Imgproc.contourArea(c) > 5000){
+                    //Drawing rectangle over found track
+                    Rect boundingRect = Imgproc.boundingRect(c);
+                    Imgproc.rectangle(mRgba,boundingRect, BoundingBoxColor, 5);
+                    //check if box is outside of track guide
+                    if (boundingRect.y < 73){
+                        turnRight();
+                    } else if (boundingRect.y > (Cameray+CameraView.getHeight())-73){
+                        turnLeft();
+                    } else {
+                        inCenter();
+                    }
+                    numBoxes++;
+                }
             }
+            Log.d(TAG, "Robot; Number of boxes on screen: "+numBoxes);
             //Color being searched for
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
             colorLabel.setTo(BlobColorRgba);
@@ -193,6 +215,23 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         touchedRegionHsv.release();
 
         return false; // don't need subsequent touch events
+    }
+    //------------------------------------------------------------------------------------------------------
+    public void inCenter(){
+        //tell EV3 to stay in center
+        Log.d(TAG, "Robot is to be kept in the center");
+    }
+    //------------------------------------------------------------------------------------------------------
+    public void turnLeft(){
+        //tell EV3 to turn left by given amount
+        //findViewById(R.id.turningLeft).setVisibility(View.VISIBLE);
+        Log.d(TAG, "Robot is turning left now");
+    }
+    //------------------------------------------------------------------------------------------------------
+    public void turnRight(){
+        //tell EV3 to turn right by given amount
+        //findViewById(R.id.turningRight).setVisibility(View.VISIBLE);
+        Log.d(TAG, "Robot is turning right now");
     }
     //------------------------------------------------------------------------------------------------------
     @Override

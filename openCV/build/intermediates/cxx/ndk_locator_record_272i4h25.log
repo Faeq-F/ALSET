@@ -11,7 +11,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 792829877
+    "memoizedHashCode": -344714115
   },
   {
     "level_": 0,
@@ -25,7 +25,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1585017980
+    "memoizedHashCode": 447473988
   },
   {
     "level_": 0,
@@ -39,7 +39,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -2005488123
+    "memoizedHashCode": 1151935181
   },
   {
     "level_": 0,
@@ -53,7 +53,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -142674053
+    "memoizedHashCode": -1280218045
   },
   {
     "level_": 0,
@@ -67,7 +67,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1201601144
+    "memoizedHashCode": 1955822160
   },
   {
     "level_": 0,
@@ -81,7 +81,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -714400548
+    "memoizedHashCode": -1851944540
   },
   {
     "level_": 0,
@@ -95,7 +95,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 790948236
+    "memoizedHashCode": -346595756
   },
   {
     "level_": 0,
@@ -109,7 +109,21 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": 1533909947
+    "memoizedHashCode": 396365955
+  },
+  {
+    "level_": 0,
+    "message_": "Folder C:\\Users\\Faeq\\AppData\\Local\\Android\\Sdk\\ndk-bundle does not exist. Ignoring.",
+    "file_": "",
+    "tag_": "",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1618101622
   },
   {
     "level_": 0,
@@ -123,7 +137,7 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1379773401
+    "memoizedHashCode": 1777649903
   },
   {
     "level_": 0,
@@ -137,6 +151,6 @@
       "fieldsDescending": {}
     },
     "memoizedSize": -1,
-    "memoizedHashCode": -1769832364
+    "memoizedHashCode": 1387590940
   }
 ]
