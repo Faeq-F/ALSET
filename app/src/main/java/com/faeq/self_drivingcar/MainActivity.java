@@ -33,7 +33,7 @@ import java.util.List;
 //----------------------------------------------------------------------------------------------------------
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     //------------------------------------------------------------------------------------------------------
-    //Tag for activity (we only have one so this is the MainActivity)
+    //Tag for activity (So we know where logs are coming from)
     private static final String TAG = "MainActivity";
     //For Camera View
     JavaCameraView CameraView;
