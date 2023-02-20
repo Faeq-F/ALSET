@@ -16,7 +16,6 @@ public class movement {
 	private static BaseRegulatedMotor mR;
 	private static BaseRegulatedMotor mUltraSonic;
 	
-	//create getters and setters for this field
 	private static float DistanceFromObject;
 	
 	//This main method used for test 
@@ -81,5 +80,11 @@ public class movement {
 		mL.setSpeed(speed);
 		mR.setSpeed(speed);
 	}
+	
+	public static void setDistanceFromObject(float newDistanceFromObject) { 
+		DistanceFromObject = newDistanceFromObject;
+	}
+	
+	public static float getDistanceFromObject() {return DistanceFromObject;}
 
 }
