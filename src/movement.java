@@ -28,13 +28,31 @@ public class movement {
 		movement.setSpeed(speed);
 		mL.synchronizeWith(new BaseRegulatedMotor[] {mR});
 		
+		//test code balance
+		forward();
+		stop();
+		forward();
+		turnLeft();
+		stop();
+		forward();
+		turnRight();
+		stop();
+		
+		
+			
+			
+		}
+		
 		//Testing code here:
 		
 		//Need to test UltraSonic sensor moving left 90 & right 90
 		
 		//Need to test robot moving 90 left & right
 		
-	}
+		
+		//test code balance
+		
+		
 	
 	public static void SensLeft() {
 		mUltraSonic.backward();
