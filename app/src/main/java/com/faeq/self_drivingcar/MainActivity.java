@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     //For Camera View
     JavaCameraView CameraView;
     private int[] CameraViewlocation = new int[2];
-    private int Camerax;
-    private int Cameray;
+    private int CameraX;
+    private int CameraY;
     //specifying that we are using the back camera (unable to specify wide-lens camera - maybe look into later)
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
     //Code for camera permissions
@@ -54,6 +54,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Size SpectrumSize;
     private Scalar ContourColor;
     private Scalar BoundingBoxColor;
+    //for movement info
+    String Will; //info about what the robot will need to do in near future
+    String Now; //info about what the robot should do now
+    //For bottom Track guide
+    private int[] BottomTrackGuideLocation = new int[2];
+    private int BottomTrackGuideX;
+    private int BottomTrackGuideY;
 
     //------------------------------------------------------------------------------------------------------
     //initialises camera when app is first launched or when onResume is called from phone sleep
@@ -103,8 +110,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         CameraView.getLocationOnScreen(CameraViewlocation);
-        Camerax = CameraViewlocation[0];
-        Cameray = CameraViewlocation[1];
+        CameraX = CameraViewlocation[0];
+        CameraY = CameraViewlocation[1];
+
+        findViewById(R.id.BottomTrackGuide).getLocationOnScreen(BottomTrackGuideLocation);
+        BottomTrackGuideX = BottomTrackGuideLocation[0];
+        BottomTrackGuideY = BottomTrackGuideLocation[1];
+
     }
     //------------------------------------------------------------------------------------------------------
     //No need to manipulate frames - due to using back camera
@@ -147,13 +159,20 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     Imgproc.rectangle(mRgba,boundingRect, BoundingBoxColor, 5);
                     //check if box is outside of track guide
                     if (boundingRect.y < 73){
-                        turnRight();
-                    } else if (boundingRect.y > (Cameray+CameraView.getHeight())-73){
-                        turnLeft();
+                        Will = "rotate_right";
+                        //check if box is at bottom of guide
+                        if (boundingRect.x >= BottomTrackGuideX) Now = "rotate_right";
+                    } else if (boundingRect.y > (CameraY+CameraView.getHeight())-73){
+                        Will = "rotate_left";
+                        //check if box is at bottom of guide
+                        if (boundingRect.x >= BottomTrackGuideX) Now = "rotate_left";
                     } else {
-                        inCenter();
+                        Will = "stay_in_the_center";
+                        //check if box is at bottom of guide
+                        if (boundingRect.x >= BottomTrackGuideX) Now = "stay_in_the_center";
                     }
                     numBoxes++;
+                    sendBTMessage();
                 }
             }
             Log.d(TAG, "Robot; Number of boxes on screen: "+numBoxes);
@@ -163,6 +182,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
 
         return mRgba;
+    }
+    //------------------------------------------------------------------------------------------------------
+    public void sendBTMessage(){
+        String message = "The robot should " + Now + " and will need to " + Will;
+        //seperate Now and Will values can be used in switch case in lejos using substring to make robot move correctly
+        Log.d(TAG, message);
     }
     //------------------------------------------------------------------------------------------------------
     @SuppressLint("ClickableViewAccessibility")
@@ -215,23 +240,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         touchedRegionHsv.release();
 
         return false; // don't need subsequent touch events
-    }
-    //------------------------------------------------------------------------------------------------------
-    public void inCenter(){
-        //tell EV3 to stay in center
-        Log.d(TAG, "Robot is to be kept in the center");
-    }
-    //------------------------------------------------------------------------------------------------------
-    public void turnLeft(){
-        //tell EV3 to turn left by given amount
-        //findViewById(R.id.turningLeft).setVisibility(View.VISIBLE);
-        Log.d(TAG, "Robot is turning left now");
-    }
-    //------------------------------------------------------------------------------------------------------
-    public void turnRight(){
-        //tell EV3 to turn right by given amount
-        //findViewById(R.id.turningRight).setVisibility(View.VISIBLE);
-        Log.d(TAG, "Robot is turning right now");
     }
     //------------------------------------------------------------------------------------------------------
     @Override
