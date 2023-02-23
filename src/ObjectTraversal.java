@@ -20,6 +20,7 @@ public class ObjectTraversal implements Behavior{
 	
 	public static void main(String[] args) {
 		// Turn 90 degrees on the stop
+		// Pull.
 		
 		// Also turn distance detection so that it points
 		// towards wall.
