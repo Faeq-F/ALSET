@@ -10,20 +10,17 @@ public class ExitThread extends Thread{
 	ExitThread(){}
 	
 	public void run(){
-		float[] arr = new float[1];
+		float[] touched = new float[1];
 		EV3TouchSensor TouchSensor = new EV3TouchSensor(TouchSensorPort);
 		while (true){
 			//Exit on touch sensor
-			TouchSensor.fetchSample(arr, MAX_PRIORITY);	
+			TouchSensor.fetchSample(touched, MAX_PRIORITY);	
 			float batteryVoltage = Battery.getVoltage();
 			//Exit for program
-			if(arr[0] == 1.0 || 
-					Button.ESCAPE.isDown() ||
-					(batteryVoltage < LOW_BATTERY)) {TouchSensor.close();System.exit(0);}
-			
+			if(touched[0] == 1.0 || Button.ESCAPE.isDown() || (batteryVoltage < LOW_BATTERY)) {
+				TouchSensor.close();
+				System.exit(0);
+			}
 		}
 	}
-}
-
-
-//check if the battery is low or the botton is pressed the system exit()
+}	
