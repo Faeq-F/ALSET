@@ -9,6 +9,7 @@ android {
     defaultConfig {
         applicationId "com.faeq.self_drivingcar"
         minSdk 21
+        //noinspection ExpiredTargetSdkVersion
         targetSdk 33
         versionCode 1
         versionName "1.0"

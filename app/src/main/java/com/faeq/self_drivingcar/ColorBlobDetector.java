@@ -1,5 +1,10 @@
 package com.faeq.self_drivingcar;
 //OpenCV Imports
+import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
+import static org.opencv.imgproc.Imgproc.createCLAHE;
+import static org.opencv.imgproc.Imgproc.cvtColor;
+import static org.opencv.imgproc.Imgproc.equalizeHist;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -17,7 +22,7 @@ public class ColorBlobDetector {
     double minH;
     double maxH;
     // Minimum %area for filtering contours
-    private final static double mMinContourArea = 0.1;
+    private final static double mMinContourArea = 500;
     // Color radius for checking range
     private final Scalar mColorRadius = new Scalar(25,50,50,0);
     private final Mat mSpectrum = new Mat();
@@ -54,7 +59,7 @@ public class ColorBlobDetector {
             spectrumHsv.put(0, j, tmp);
         }
         //Converting spectrum from HSV to RGB
-        Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
+        cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
     }
     //------------------------------------------------------------------------------------------------------
     public void process(Mat rgbaImage) {
@@ -62,23 +67,17 @@ public class ColorBlobDetector {
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);
         Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
         //Converting down-sampled image to HSV
-        Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
+        cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);
         //Dilating image
         Imgproc.dilate(mMask, mDilatedMask, new Mat());
         List<MatOfPoint> contours = new ArrayList<>();
         //finding contours
         Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        double maxArea = 0;
-        for (MatOfPoint wrapper : contours) {
-            double area = Imgproc.contourArea(wrapper);
-            if (area > maxArea)
-                maxArea = area;
-        }
         // Filter contours by area and resizes them to fit the original image size
         mContours.clear();
         for (MatOfPoint contour : contours){
-            if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+            if (Imgproc.contourArea(contour) > mMinContourArea){
                 Core.multiply(contour, new Scalar(4,4), contour);
                 mContours.add(contour);
             }
