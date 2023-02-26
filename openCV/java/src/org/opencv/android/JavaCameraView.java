@@ -172,6 +172,10 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
                     {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
+                    //Added parameters for self-driving car app
+                    params.setPreviewFrameRate(30);
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                    params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
 
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();

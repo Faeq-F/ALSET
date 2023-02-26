@@ -1,30 +1,18 @@
 package com.faeq.self_drivingcar;
 //general app imports
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 //Android imports
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.SeekBar;
 import android.widget.Toast;
 //OpenCV imports
 import org.opencv.android.BaseLoaderCallback;
@@ -35,22 +23,20 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-//Java imports; OpenCV methods require data to be given in lists of this type
+//Java imports
 import java.util.List;
 //----------------------------------------------------------------------------------------------------------
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     //------------------------------------------------------------------------------------------------------
-    //Tag for activity (So we know where logs are coming from)
+    //Tag for activity
     private static final String TAG = "MainActivity";
-    //OpenCV Camera View
+    //OpenCV Camera View - please see the source file of the class for modifications made
     JavaCameraView CameraView;
-    //CameraManager objCameraManager; - try to turn flashlight on; see line 113
-    //specifying that we are using the back camera (unable to specify wide-lens camera - maybe look into later)
+    //specifying that we are using the back camera
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
     //Code for camera permissions
     private static final int MY_CAMERA_REQUEST_CODE = 100;
@@ -64,8 +50,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Size SpectrumSize;
     private Scalar ContourColor;
     private Scalar BoundingBoxColor;
+    //Track guide bounds for detecting rotation
+    int TrackGuideLeft = 74;
+    int TrackGuideRight = 1000;
     //------------------------------------------------------------------------------------------------------
-    //initialises camera when app is first launched or when onResume is called from phone sleep
+    //initialises camera when app is first launched or when onResume is called from activity sleep
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
         CameraView.setCameraPermissionGranted();
         CameraView.setCameraIndex(activeCamera);
@@ -109,26 +98,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         //fullscreen Camera view
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //Set camera to autofocus
-        Camera cam = Camera.open();
-        Camera.Parameters p = cam.getParameters();
-        p.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-        cam.setParameters(p);
-        cam.startPreview();
-        //try to turn flashlight on
-//        objCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-//        String mCameraId = "";
-//        try {
-//            mCameraId = objCameraManager.getCameraIdList()[0];
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                objCameraManager.setTorchMode(mCameraId, true);
-//            }
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
+        //keep the screen on
+        CameraView.setKeepScreenOn(true);
     }
     //------------------------------------------------------------------------------------------------------
-    //No need to manipulate frames - due to using back camera
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
@@ -158,19 +131,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Imgproc.drawContours(mRgba, contours, -1, ContourColor, 5);
             //Draw a bounding box around all contours
             for (MatOfPoint c : contours){
+                //draw rectangle
                 Rect boundingRect = Imgproc.boundingRect(c);
                 Imgproc.rectangle(mRgba,boundingRect, BoundingBoxColor, 5);
-                //check if box is at bottom of guide: if (boundingRect.x >= BottomTrackGuideX)
-                String message = "";
+                //send message to EV3
                 //(0,0) is top left corner
-                if (boundingRect.y < 74){
-                    message = "rotate_right";
-                } else if (boundingRect.y+ boundingRect.height > 750){
-                    message = "rotate_left";
-                } else {
-                    message = "stay_in_the_center";
-                }
-                sendBTMessage(message);
+                if (boundingRect.y < TrackGuideLeft) sendBTMessage("rotate_left");
+                else if (boundingRect.y + boundingRect.height > TrackGuideRight) sendBTMessage("rotate_right");
+                else sendBTMessage("stay_in_the_center");
             }
             //Color being searched for displayed in corner (helps calibrating)
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
