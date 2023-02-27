@@ -29,6 +29,12 @@ public class ObjectTraversal implements Behavior{
 		
 	}
 	
+	// NOTE: 
+	//	- To make robot rotate ~90 degrees on the spot, make it rotate by 200 amounts.
+	//	- The ultrasonic sensor motor's turn is clockwise relative to the top of the robot,
+	//	  meaning that 90 makes it turn to its right, 0 to the front and so on. 
+	//	- REMEMBER, ultrasonic's motor is set 0 as when PROGRAM STARTS, there is no absolute.
+	
 	
 	final static float WHEEL_DIAMETER = 51; // The diameter (mm) of the wheels
 	final static float AXLE_LENGTH = 44; // The distance (mm) your two driven wheels
@@ -36,7 +42,24 @@ public class ObjectTraversal implements Behavior{
 	final static float LINEAR_SPEED = 70; // How fast in a straight line (mm/sec)
 	
 	public static void main(String[] args) {
-		// TESTING
+		// ULTRASONIC SENSOR PARTS
+		// assign tacho to vars
+		int tach_start, tach_end ;
+		
+		// init ultrasonic sensor
+		EV3UltrasonicSensor us_sensor = new EV3UltrasonicSensor(SensorPort.S2);
+		SampleProvider sp = us_sensor.getDistanceMode();
+		
+		// var to save distance detected
+		float[] sample = new float[1] ;
+		// /ULTRASONIC SENSOR PARTS
+		
+		
+		// ULTRASONIC SENSOR MOTOR
+		BaseRegulatedMotor distanceSensorMotor = new EV3MediumRegulatedMotor(MotorPort.C) ;
+		// /ULTRASONIT SENSOR MOTOR
+		
+		
 		// WHEEL PARTS
 		BaseRegulatedMotor mLeft = new EV3LargeRegulatedMotor(MotorPort.A) ;
 		BaseRegulatedMotor mRight = new EV3LargeRegulatedMotor(MotorPort.D) ;
@@ -59,71 +82,15 @@ public class ObjectTraversal implements Behavior{
 		pilot.setAngularSpeed(ANGULAR_SPEED) ;
 		pilot.setLinearSpeed(LINEAR_SPEED) ;		
 		// /WHEEL PARTS
-		
-		
-//		pilot.travel(100) ;
+	
 		
 		// Turn 90 degrees on the stop
-		pilot.rotate(190) ;		
+		pilot.rotate(200) ;		
 		
-		// ULTRASONIC SENSOR MOTOR
-		BaseRegulatedMotor distanceSensorMotor = new EV3MediumRegulatedMotor(MotorPort.C) ;
-		// /ULTRASONIT SENSOR MOTOR
+		// Also turn distance detection so that it points
+		// towards wall.
+		distanceSensorMotor.rotateTo(90) ;		
 		
-		distanceSensorMotor.rotate(-90) ;
-		// /TESTING
-		
-		// ULTRASONIC SENSOR PARTS
-		// assign tacho to vars
-//		int tach_start, tach_end ;
-//		
-//		// init ultrasonic sensor
-//		EV3UltrasonicSensor us_sensor = new EV3UltrasonicSensor(SensorPort.S2);
-//		SampleProvider sp = us_sensor.getDistanceMode();
-//		
-//		// var to save distance detected
-//		float[] sample = new float[1] ;
-//		// /ULTRASONIC SENSOR PARTS
-//		
-//		
-//		// ULTRASONIC SENSOR MOTOR
-//		BaseRegulatedMotor distanceSensorMotor = new EV3MediumRegulatedMotor(MotorPort.C) ;
-//		// /ULTRASONIT SENSOR MOTOR
-//		
-//		
-//		// WHEEL PARTS
-//		BaseRegulatedMotor mLeft = new EV3LargeRegulatedMotor(MotorPort.A) ;
-//		BaseRegulatedMotor mRight = new EV3LargeRegulatedMotor(MotorPort.D) ;
-//		
-//		mLeft.synchronizeWith(new BaseRegulatedMotor[] {mRight}) ;
-//		
-//		// Create a ”Wheel” with Diameter 51mm and offset 22mm left of centre.
-//		Wheel wLeft = WheeledChassis.modelWheel(mLeft, WHEEL_DIAMETER).offset(-AXLE_LENGTH / 2);
-//				
-//		// Create a ”Wheel” with Diameter 51mm and offset 22mm right of centre.
-//		Wheel wRight = WheeledChassis.modelWheel(mRight, WHEEL_DIAMETER).offset(AXLE_LENGTH / 2);
-//		
-//		// Create a ”Chassis” with two wheels on it.
-//		Chassis chassis = new WheeledChassis( (new Wheel[] {wRight, wLeft}),
-//											   WheeledChassis.TYPE_DIFFERENTIAL);
-//		
-//		// Finally create a pilot which can drive using this chassis.
-//		MovePilot pilot = new MovePilot(chassis);
-//		
-//		pilot.setAngularSpeed(ANGULAR_SPEED) ;
-//		pilot.setLinearSpeed(LINEAR_SPEED) ;		
-//		// /WHEEL PARTS
-//		
-//		
-////		pilot.travel(100) ;
-//		
-//		// Turn 90 degrees on the stop
-//		pilot.rotate(-240) ;		
-//		
-//		// Also turn distance detection so that it points
-//		// towards wall.
-//		distanceSensorMotor.rotateTo(-90) ;		
-//		
 //		// Reset tacho count
 //		tach_start = mLeft.getTachoCount() ;
 //		
