@@ -3,14 +3,15 @@ import lejos.robotics.subsumption.Behavior;
 public class FollowTrack implements Behavior{
 	
 	//using these vars as the fields to be checked until bluetooth code has been written
-	Boolean connectionT = true;
-	Boolean connectionF = false;
-	Boolean TrackFoundT = true;
-	Boolean TrackFoundF = false;
+	Boolean BTconnection = true;
+	Boolean TrackFound = true;
+	
+	Boolean _suppressed = false;
 
 	@Override
 	public boolean takeControl() {
 		//check if there is a bluetooth connection and if a track is found (just use the fields)
+		//not used for testing
 		return false;
 		
 	}
@@ -23,12 +24,15 @@ public class FollowTrack implements Behavior{
 		String messageC = "stay_in_the_center";
 		String messageL = "turn_left";
 		String messageR = "turn_right";
+		//check if suppressed
 		
+		//if not suppressed, follow message instructions
 	}
 
 	@Override
 	public void suppress() {
-		
+		//change suppress field
+		//not used for testing
 	}
 	
 	public static void main(String[] args) {
