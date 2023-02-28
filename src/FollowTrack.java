@@ -27,23 +27,18 @@ public class FollowTrack implements Behavior{
 		String messageL = "turn_left";
 		String messageR = "turn_right";
 		//check if suppressed
-		
-		if(messageC == "stay_in_the_center") {
-			movement.forward();
-			Delay.msDelay(1000);
+		while (!_suppressed) {
+			//if not suppressed, follow message instructions
+			if(messageC == "stay_in_the_center") {
+				movement.forward();
+			}
+			else if(messageL == "turn_left") {
+				movement.turnLeft();
+			}
+			else if(messageR == "turn_right") {
+				movement.turnRight();
+			}
 		}
-		else if(messageL == "turn_left") {
-			movement.turnLeft();
-			Delay.msDelay(1000);
-		}
-		else if(messageR == "turn_right") {
-			movement.turnRight();
-			Delay.msDelay(1000);
-		}
-		//if not suppressed, follow message instructions
-		else
-			suppress();
-		
 	}
 
 	@Override
