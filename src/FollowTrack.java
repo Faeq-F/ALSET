@@ -22,34 +22,34 @@ public class FollowTrack implements Behavior{
 	public void action() {
 		//move based on message from phone
 		//String message = movement.getMessageFromPhone();
-		//Use the following vars instead for testing:
-		String messageC = "stay_in_the_center";
-		String messageL = "turn_left";
-		String messageR = "turn_right";
+		//change this var for testing
+		String message = "";
 		//check if suppressed
 		while (!_suppressed) {
 			//if not suppressed, follow message instructions
-			if(messageC == "stay_in_the_center") {
-				movement.forward();
-			}
-			else if(messageL == "turn_left") {
-				movement.turnLeft();
-			}
-			else if(messageR == "turn_right") {
-				movement.turnRight();
+			switch(message){
+				case "stay_in_the_center":
+					movement.forward();
+					break;
+				case "turn_left":
+					movement.turnLeft();
+					break;
+				case "turn_right":
+					movement.turnRight();
+					break;
+				default: //not required but can help
+					movement.stop();
 			}
 		}
 	}
 
 	@Override
 	public void suppress() {
-		//change suppress field
-		//not used for testing
 		_suppressed = true;
 	}
 	
 	public static void main(String[] args) {
-		//run test:
+		//run action() for testing:
 		FollowTrack FT = new FollowTrack();
 		FT.action();
 	}
