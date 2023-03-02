@@ -62,13 +62,13 @@ public class ObjectTraversal implements Behavior{
 		
 		mLeft.synchronizeWith(new BaseRegulatedMotor[] {mRight}) ;
 		
-		// Create a ”Wheel” with Diameter 51mm and offset 22mm left of centre.
+		// Create a Wheel with Diameter 51mm and offset 22mm left of centre.
 		Wheel wLeft = WheeledChassis.modelWheel(mLeft, WHEEL_DIAMETER).offset(-AXLE_LENGTH / 2);
 				
-		// Create a ”Wheel” with Diameter 51mm and offset 22mm right of centre.
+		// Create a Wheel with Diameter 51mm and offset 22mm right of centre.
 		Wheel wRight = WheeledChassis.modelWheel(mRight, WHEEL_DIAMETER).offset(AXLE_LENGTH / 2);
 		
-		// Create a ”Chassis” with two wheels on it.
+		// Create a Chassis with two wheels on it.
 		Chassis chassis = new WheeledChassis( (new Wheel[] {wRight, wLeft}),
 											   WheeledChassis.TYPE_DIFFERENTIAL);
 		
