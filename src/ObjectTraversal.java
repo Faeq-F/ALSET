@@ -41,19 +41,15 @@ public class ObjectTraversal implements Behavior{
 	final static float ANGULAR_SPEED = 100; // How fast around corners (degrees/sec)
 	final static float LINEAR_SPEED = 70; // How fast in a straight line (mm/sec)
 	
+	final static int SENSORMOTOR = 100 ;
+	
 	public static void main(String[] args) {
 		// ULTRASONIC SENSOR PARTS
 		// assign tacho to vars
 		int tach_start, tach_end ;
 		
-		// init ultrasonic sensor
-		EV3UltrasonicSensor us_sensor = new EV3UltrasonicSensor(SensorPort.S2);
-		SampleProvider sp = us_sensor.getDistanceMode();
-		
-		// var to save distance detected
-		float[] sample = new float[1] ;
-		// /ULTRASONIC SENSOR PARTS
-		
+		ObjectDetection OD = new ObjectDetection();
+		OD.start();
 		
 		// ULTRASONIC SENSOR MOTOR
 		BaseRegulatedMotor distanceSensorMotor = new EV3MediumRegulatedMotor(MotorPort.C) ;
@@ -85,56 +81,64 @@ public class ObjectTraversal implements Behavior{
 	
 		
 		// Turn 90 degrees on the stop
-		pilot.rotate(200) ;		
+		pilot.rotate(200) ;
 		
 		// Also turn distance detection so that it points
 		// towards wall.
-		distanceSensorMotor.rotateTo(90) ;		
+		distanceSensorMotor.rotateTo(SENSORMOTOR) ;		
 		
-//		// Reset tacho count
-//		tach_start = mLeft.getTachoCount() ;
-//		
-//		// while loop, keep going until does not detect wall beside it
-//		int a = 0 ;
-//		pilot.forward() ;
-//		while (true || a < 10) {
-//			sp.fetchSample(sample, 0) ;
-//			
-//			if (sample[0] <= 100) {
-//				break ;
-//			}
-//			++a ;
-//		}
-//	
-//		// keep going forwards for a little bit
-//		pilot.travel(100) ;
-//		
-//		// assign tacho count to a var
-//		tach_end = mLeft.getTachoCount() ;
-//		
-//		// turn -90, do NOT change distance sensor position
-//		pilot.rotate(190) ;
-//		
+		
+		// 		KEEP GOING UNTIL WALL IS NO LONGER DETECTED
+		// Get starting tacho count, this will be used later
+		tach_start = mLeft.getTachoCount() ;
+		
+		
+		
+		// while loop, keep going until does not detect wall beside it
+		pilot.forward() ;		
+		
+		float current_distance ;
+		while(true) {
+			current_distance = movement.getDistanceFromObject();
+			if (current_distance >= 100) {
+				break;
+			}	
+		}
+		
+	
+		// keep going forwards for a little bit
+		pilot.travel(210) ;
+		
+		// assign tacho count to a var
+		tach_end = mLeft.getTachoCount() ;
+		
+		System.out.println(tach_end - tach_start) ;
+		
+		// turn -90, do NOT change distance sensor position
+		pilot.rotate(-200) ;
+		
+		
 //		// keep going until wall is not detected on the side
 //		// as obstruction may be a box.
-//		while (true || (a < 10)) {
+//		while (true) {
 //			sp.fetchSample(sample, 0) ;
 //			
-//			if (sample[0] <= 100) {
+//			if (sample[0] >= 100) {
 //				break ;
 //			}
-//			++a ;
 //		}
 //		
 //		// turn -90 again
-//		pilot.rotate(190) ;
+//		pilot.rotate(-200) ;
 //		
 //		// go forward the amount of tacho count we assigned before
-//		float distance_travelled = WHEEL_DIAMETER*2f*3.14159f ;
+//		float distance_travelled = WHEEL_DIAMETER*3.14159f ;
 //		pilot.travel(distance_travelled) ;
 //		
 //		// then rotate 90. In theory, we should be back where robot 
 //		// was when it was behind the box/obstruction.
+//		pilot.rotate(200) ;
+//		
 //		
 //		distanceSensorMotor.close() ;
 		
