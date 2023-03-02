@@ -42,6 +42,8 @@ public class ObjectTraversal implements Behavior{
 	final static float LINEAR_SPEED = 70; // How fast in a straight line (mm/sec)
 	
 	final static int SENSORMOTOR = 100 ;
+	final static int TRAVELAFTEROBS = 90 ;
+	final static int ROT90DEGREES = 200 ;
 	
 	public static void main(String[] args) {
 		// ULTRASONIC SENSOR PARTS
@@ -81,7 +83,7 @@ public class ObjectTraversal implements Behavior{
 	
 		
 		// Turn 90 degrees on the stop
-		pilot.rotate(200) ;
+		pilot.rotate(ROT90DEGREES) ;
 		
 		// Also turn distance detection so that it points
 		// towards wall.
@@ -107,41 +109,38 @@ public class ObjectTraversal implements Behavior{
 		
 	
 		// keep going forwards for a little bit
-		pilot.travel(210) ;
+		pilot.travel(TRAVELAFTEROBS) ;
 		
 		// assign tacho count to a var
 		tach_end = mLeft.getTachoCount() ;
 		
-		System.out.println(tach_end - tach_start) ;
 		
 		// turn -90, do NOT change distance sensor position
-		pilot.rotate(-200) ;
+		pilot.rotate(-ROT90DEGREES) ;
 		
 		
-//		// keep going until wall is not detected on the side
-//		// as obstruction may be a box.
-//		while (true) {
-//			sp.fetchSample(sample, 0) ;
-//			
-//			if (sample[0] >= 100) {
-//				break ;
-//			}
-//		}
-//		
-//		// turn -90 again
-//		pilot.rotate(-200) ;
-//		
-//		// go forward the amount of tacho count we assigned before
-//		float distance_travelled = WHEEL_DIAMETER*3.14159f ;
-//		pilot.travel(distance_travelled) ;
-//		
-//		// then rotate 90. In theory, we should be back where robot 
-//		// was when it was behind the box/obstruction.
-//		pilot.rotate(200) ;
-//		
-//		
-//		distanceSensorMotor.close() ;
+		// keep going until wall is not detected on the side
+		// as obstruction may be a box.
+		while(true) {
+			current_distance = movement.getDistanceFromObject();
+			if (current_distance >= 100) {
+				break;
+			}	
+		}
 		
+		// turn -90 again
+		pilot.rotate(-ROT90DEGREES) ;
+		
+		// go forward the amount of tacho count we assigned before
+		float distance_travelled = WHEEL_DIAMETER*3.14159f ;
+		pilot.travel(distance_travelled) ;
+		
+		// then rotate 90. In theory, we should be back where robot 
+		// was when it was behind the box/obstruction.
+		pilot.rotate(ROT90DEGREES) ;
+		distanceSensorMotor.rotateTo(SENSORMOTOR*0) ;	
+		
+		distanceSensorMotor.close() ;
 
 	}
 
