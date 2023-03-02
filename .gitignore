@@ -2,3 +2,6 @@ build**
 **.class
 **.jar
 **.xlm
+bin*
+dist*
+build*
