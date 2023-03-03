@@ -1,5 +1,4 @@
 import lejos.robotics.subsumption.Behavior;
-import lejos.utility.Delay;
 
 public class FollowTrack implements Behavior{
 	
@@ -7,6 +6,8 @@ public class FollowTrack implements Behavior{
 	Boolean BTconnection = true;
 	Boolean TrackFound = true;
 	Boolean _suppressed = false;
+
+	
 
 	@Override
 	public boolean takeControl() {
@@ -23,7 +24,7 @@ public class FollowTrack implements Behavior{
 		//move based on message from phone
 		//String message = movement.getMessageFromPhone();
 		//change this var for testing
-		String message = "";
+		String message = "turn_right";
 		//check if suppressed
 		while (!_suppressed) {
 			//if not suppressed, follow message instructions
@@ -49,9 +50,12 @@ public class FollowTrack implements Behavior{
 	}
 	
 	public static void main(String[] args) {
+		movement.initializeAll();
+		ExitThread checkExit = new ExitThread();
 		//run action() for testing:
 		FollowTrack FT = new FollowTrack();
+		checkExit.start();
 		FT.action();
-	}
 
+	}
 }
