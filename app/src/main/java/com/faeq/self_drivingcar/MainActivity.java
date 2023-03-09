@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Scalar BoundingBoxColor;
     //Track guide bounds for detecting rotation
     int TrackGuideLeft = 74;
-    int TrackGuideRight = 1000;
+    //int TrackGuideRight = 1000;
+    int TrackGuideRight = 650;
     //------------------------------------------------------------------------------------------------------
     //initialises camera when app is first launched or when onResume is called from activity sleep
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             List<MatOfPoint> contours = Detector.getContours();
             //draw contours found
             Imgproc.drawContours(mRgba, contours, -1, ContourColor, 5);
+            if (contours.size() == 0) sendBTMessage("no_track_found");
             //Draw a bounding box around all contours
             for (MatOfPoint c : contours){
                 //draw rectangle
