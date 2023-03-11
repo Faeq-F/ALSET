@@ -9,6 +9,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,10 +51,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Size SpectrumSize;
     private Scalar ContourColor;
     private Scalar BoundingBoxColor;
+    //Buffer for sides of guide - activity_main layout
+    int TrackCenterBuffer = 74;
     //Track guide bounds for detecting rotation
-    int TrackGuideLeft = 74;
-    //int TrackGuideRight = 1000;
-    int TrackGuideRight = 650;
+    int TrackGuideLeft;
+    int TrackGuideRight;
     //------------------------------------------------------------------------------------------------------
     //initialises camera when app is first launched or when onResume is called from activity sleep
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
@@ -101,6 +103,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //keep the screen on
         CameraView.setKeepScreenOn(true);
+        //setting the thresholds
+        TrackGuideLeft = TrackCenterBuffer;
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenHeight = displayMetrics.heightPixels;
+        TrackGuideRight = screenHeight - TrackCenterBuffer; //assuming navigation bar is hidden
     }
     //------------------------------------------------------------------------------------------------------
     @Override
@@ -128,12 +136,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if (IsColorSelected) {
             Detector.process(mRgba);
             List<MatOfPoint> contours = Detector.getContours();
-            //draw contours found
+            //draw contours found (green outline)
             Imgproc.drawContours(mRgba, contours, -1, ContourColor, 5);
             if (contours.size() == 0) sendBTMessage("no_track_found");
             //Draw a bounding box around all contours
             for (MatOfPoint c : contours){
-                //draw rectangle
+                //draw light blue rectangle around detected track
                 Rect boundingRect = Imgproc.boundingRect(c);
                 Imgproc.rectangle(mRgba,boundingRect, BoundingBoxColor, 5);
                 //send message to EV3
@@ -150,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
     //------------------------------------------------------------------------------------------------------
     public void sendBTMessage(String message){
-        //send message to EV3 over bluetooth
         Log.d("Send to EV3", message);
     }
     //------------------------------------------------------------------------------------------------------
