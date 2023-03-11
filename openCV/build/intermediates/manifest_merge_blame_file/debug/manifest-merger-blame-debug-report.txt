@@ -3,7 +3,7 @@
 3    package="org.opencv" >
 4
 5    <uses-sdk
-6        android:minSdkVersion="21"
+6        android:minSdkVersion="23"
 6-->C:\Users\Faeq\Documents\Term 2\Programming Lab\self-driving-car\openCV\java\AndroidManifest.xml
 7        android:targetSdkVersion="33" />
 7-->C:\Users\Faeq\Documents\Term 2\Programming Lab\self-driving-car\openCV\java\AndroidManifest.xml

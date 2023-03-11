@@ -9,11 +9,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 //OpenCV imports
 import org.opencv.android.BaseLoaderCallback;
@@ -29,6 +32,9 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 //Java imports
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 //----------------------------------------------------------------------------------------------------------
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
@@ -56,6 +62,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     //Track guide bounds for detecting rotation
     int TrackGuideLeft;
     int TrackGuideRight;
+    //Bluetooth connection with EV3
+    private static final int SHOWN_IPV4 = 1;
+    private static final int PERMISSION_REQUEST_CODE = 0;
+    private static final String[] REQUIRED_SDK_PERMISSIONS = new String[] { Manifest.permission.CAMERA, Manifest.permission.INTERNET };
+    private final ServerHandler mHandler = new ServerHandler(this);
+    private CameraBridgeViewBase mOpenCvCameraView;
+    private EditText mSend;
+    private Server server;
     //------------------------------------------------------------------------------------------------------
     //initialises camera when app is first launched or when onResume is called from activity sleep
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
@@ -63,18 +77,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         CameraView.setCameraIndex(activeCamera);
         CameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         CameraView.setCvCameraViewListener(this);
+        mHandler.init();
+        checkPermissions();
     }
     //------------------------------------------------------------------------------------------------------
     //Enables Camera when OpenCV loads correctly (see onResume())
-    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(MainActivity.this) {
+    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public void onManagerConnected(int status) {
             if (status == BaseLoaderCallback.SUCCESS){
                 CameraView.enableView();
                 CameraView.setOnTouchListener(MainActivity.this);
-            }
-            else super.onManagerConnected(status);
+            } else super.onManagerConnected(status);
         }
     };
     //------------------------------------------------------------------------------------------------------
@@ -159,6 +174,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     //------------------------------------------------------------------------------------------------------
     public void sendBTMessage(String message){
         Log.d("Send to EV3", message);
+        if (server.getState() != Server.STATE_CONNECTED)  return;
+        // Get the message bytes and tell the BluetoothChatService to write
+        server.write((message+ "\n").getBytes());
     }
     //------------------------------------------------------------------------------------------------------
     @SuppressLint("ClickableViewAccessibility")
@@ -199,6 +217,50 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         touchedRegionHsv.release();
         return false; // don't need subsequent touch events
     }
+    //------------------------------------------------------------------------------------------------------------------------
+    private static class ServerHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+        private String mConnMsg = null;
+        ServerHandler(MainActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+        void init() {
+            mConnMsg = mActivity.get().getString(R.string.title_not_connected);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity == null) return;
+            switch (msg.what) {
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case Server.STATE_CONNECTED:
+                            Toast.makeText(activity, mConnMsg, Toast.LENGTH_LONG).show();
+                            break;
+                        case Server.STATE_LISTEN:
+                        case Server.STATE_NONE:
+                            Toast.makeText(activity, activity.getString(R.string.title_not_connected), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case Constants.MESSAGE_READ:
+                    try {
+                        new String((byte[]) msg.obj, 0, msg.arg1);// construct a string from the valid bytes in the buffer
+                    } catch (StringIndexOutOfBoundsException e) {
+                        System.exit(-1);//EV3 is no longer connected
+                    }
+                    break;
+                case Constants.MESSAGE_DEVICE_NAME:
+                    String device = msg.getData().getString(Constants.DEVICE_NAME);
+                    mConnMsg = activity.getString(R.string.title_connected_to, device);
+                    Toast.makeText(activity, mConnMsg, Toast.LENGTH_LONG).show();
+                    break;
+                case Constants.MESSAGE_TOAST:
+                    Toast.makeText(activity, msg.getData().getString(Constants.TOAST), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
     //------------------------------------------------------------------------------------------------------
     @Override
     protected void onResume(){
@@ -211,6 +273,25 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Log.d(TAG, "OpenCV is NOT configured correctly");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, MainActivity.this, baseLoaderCallback);
         }
+        server.start();
+    }
+    //------------------------------------------------------------------------------------------------------
+    private void checkPermissions() {
+        final List<String> missingPermissions = new ArrayList<>();
+        for (final String permission : REQUIRED_SDK_PERMISSIONS) {
+            final int result = ContextCompat.checkSelfPermission(this, permission);
+            if (result != PackageManager.PERMISSION_GRANTED)  missingPermissions.add(permission);
+        }
+        if (!missingPermissions.isEmpty()) {
+            // request required (and missing) permissions
+            final String[] permissions = missingPermissions.toArray(new String[0]);
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        } else {
+            // We already have them all
+            final int[] grantResults = new int[REQUIRED_SDK_PERMISSIONS.length];
+            Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
+            onRequestPermissionsResult(PERMISSION_REQUEST_CODE, REQUIRED_SDK_PERMISSIONS, grantResults);
+        }
     }
     //------------------------------------------------------------------------------------------------------
     @Override
@@ -220,6 +301,18 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             //Camera can be used
             Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
             initializeCamera(CameraView, activeCamera);
+
+        } else if (requestCode == PERMISSION_REQUEST_CODE) {
+            for (int index = permissions.length - 1; index >= 0; --index) {
+                if (grantResults[index] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Required permission '" + permissions[index]
+                            + "' not granted, exiting", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+            }
+            server = new Server(this, mHandler);
+            server.start();
         } else Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
     }
     //------------------------------------------------------------------------------------------------------
@@ -230,7 +323,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     protected void onDestroy() { super.onDestroy(); if (CameraView != null) CameraView.disableView(); }
     //------------------------------------------------------------------------------------------------------
     @Override
-    protected void onPause() { super.onPause(); if (CameraView != null) CameraView.disableView();}
+    protected void onPause() { super.onPause(); if (CameraView != null) CameraView.disableView();
+        server.stop();
+    }
     //------------------------------------------------------------------------------------------------------
     @Override
     public void onCameraViewStopped() { try {mRgba.release();} catch(NullPointerException e){Log.d(TAG, "No frame to release");}}
