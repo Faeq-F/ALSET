@@ -2,29 +2,24 @@ import lejos.robotics.subsumption.Behavior;
 
 public class FollowTrack implements Behavior{
 	
-	//using these vars as the fields to be checked until bluetooth code has been written
+	//using these vars as the fields to be checked until BT code has been written
 	Boolean BTconnection = true;
 	Boolean TrackFound = true;
 	Boolean _suppressed = false;
 
-	
-
 	@Override
 	public boolean takeControl() {
-		//check if there is a bluetooth connection and if a track is found (just use the fields)
+		//check if there is a BT connection and if a track is found (just use the fields)
 		//not used for testing
 		if(BTconnection == true && TrackFound == true)
 			return true;
 		return false;
-		
 	}
 
 	@Override
 	public void action() {
 		//move based on message from phone
-		//String message = movement.getMessageFromPhone();
-		//change this var for testing
-		String message = "turn_right";
+		String message = Main.getMessageFromPhone();
 		//check if suppressed
 		while (!_suppressed) {
 			//if not suppressed, follow message instructions
@@ -38,8 +33,6 @@ public class FollowTrack implements Behavior{
 				case "turn_right":
 					movement.turnRight();
 					break;
-				default: //not required but can help
-					movement.stop();
 			}
 		}
 	}
@@ -49,6 +42,7 @@ public class FollowTrack implements Behavior{
 		_suppressed = true;
 	}
 	
+	//testing method
 	public static void main(String[] args) {
 		movement.initializeAll();
 		ExitThread checkExit = new ExitThread();
@@ -56,6 +50,5 @@ public class FollowTrack implements Behavior{
 		FollowTrack FT = new FollowTrack();
 		checkExit.start();
 		FT.action();
-
 	}
 }

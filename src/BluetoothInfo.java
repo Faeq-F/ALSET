@@ -9,19 +9,20 @@ public class BluetoothInfo extends Thread{
 	
 	public void run(){
 		try {
-			Socket clientSocket = new Socket("10.0.1.2", 1234);
+			Socket clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);
 			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			while (true){
-				System.out.println(in.readLine());
+			while (true) {
+				Main.setMessageFromPhone(in.readLine());
+				System.out.println(Main.getMessageFromPhone());
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-	    
 	}
 	
+	//testing method
 	public static void main(final String[] array) {
-        final BluetoothInfo bluetoothInfo = new BluetoothInfo();
+		final BluetoothInfo bluetoothInfo = new BluetoothInfo();
         new ExitThread().start();
         bluetoothInfo.run();
     }
