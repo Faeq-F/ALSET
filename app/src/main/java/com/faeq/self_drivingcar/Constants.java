@@ -1,8 +1,5 @@
 package com.faeq.self_drivingcar;
 
-/**
- * Defines several constants used to connect interface to Server code.
- */
 public interface Constants {
 
     // Message types sent from the BluetoothChatService Handler

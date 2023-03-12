@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.Toast;
 //OpenCV imports
 import org.opencv.android.BaseLoaderCallback;
@@ -36,17 +35,17 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-//----------------------------------------------------------------------------------------------------------
+
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
-    //------------------------------------------------------------------------------------------------------
-    //Tag for activity
     private static final String TAG = "MainActivity";
+
     //OpenCV Camera View - please see the source file of the class for modifications made
     JavaCameraView CameraView;
     //specifying that we are using the back camera
     int activeCamera = CameraBridgeViewBase.CAMERA_ID_BACK;
     //Code for camera permissions
     private static final int MY_CAMERA_REQUEST_CODE = 100;
+
     //Color detection
     private boolean IsColorSelected = false;
     private Mat mRgba;
@@ -57,48 +56,28 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Size SpectrumSize;
     private Scalar ContourColor;
     private Scalar BoundingBoxColor;
+
     //Buffer for sides of guide - activity_main layout
     int TrackCenterBuffer = 74;
     //Track guide bounds for detecting rotation
     int TrackGuideLeft;
     int TrackGuideRight;
+
     //Bluetooth connection with EV3
-    private static final int SHOWN_IPV4 = 1;
     private static final int PERMISSION_REQUEST_CODE = 0;
     private static final String[] REQUIRED_SDK_PERMISSIONS = new String[] { Manifest.permission.CAMERA, Manifest.permission.INTERNET };
     private final ServerHandler mHandler = new ServerHandler(this);
-    private CameraBridgeViewBase mOpenCvCameraView;
-    private EditText mSend;
     private Server server;
-    //------------------------------------------------------------------------------------------------------
-    //initialises camera when app is first launched or when onResume is called from activity sleep
+
     private void initializeCamera(JavaCameraView CameraView, int activeCamera){
         CameraView.setCameraPermissionGranted();
         CameraView.setCameraIndex(activeCamera);
         CameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         CameraView.setCvCameraViewListener(this);
         mHandler.init();
-        checkPermissions();
+        checkBTpermissions();
     }
-    //------------------------------------------------------------------------------------------------------
-    //Enables Camera when OpenCV loads correctly (see onResume())
-    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public void onManagerConnected(int status) {
-            if (status == BaseLoaderCallback.SUCCESS){
-                CameraView.enableView();
-                CameraView.setOnTouchListener(MainActivity.this);
-            } else super.onManagerConnected(status);
-        }
-    };
-    //------------------------------------------------------------------------------------------------------
-    //Helps with the app starting up fast (instead of waiting for onResume())
-    static{
-        if (OpenCVLoader.initDebug()) Log.d(TAG, "OpenCV is configured correctly");
-        else Log.d(TAG, "OpenCV is NOT configured correctly");
-    }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //show Main Activity
@@ -106,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         setContentView(R.layout.activity_main);
         //show Camera View
         CameraView = findViewById(R.id.CameraView);
-        //need permission checking above Android 5 (Our phone runs Android 9)
+        //checks camera permissions first then moves to checkBTpermissions()
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permissions granted");
             initializeCamera(CameraView, activeCamera);
@@ -125,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         int screenHeight = displayMetrics.heightPixels;
         TrackGuideRight = screenHeight - TrackCenterBuffer; //assuming navigation bar is hidden
     }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
@@ -137,14 +116,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         ContourColor = new Scalar(0,255,0,255);
         BoundingBoxColor = new Scalar(0,255,255,255);
     }
-    //------------------------------------------------------------------------------------------------------
+
     private Scalar convertScalarHsv2Rgba(Scalar hsvColor) {
         Mat pointMatRgba = new Mat();
         Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
         Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
         return new Scalar(pointMatRgba.get(0, 0));
     }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
@@ -163,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 //(0,0) is top left corner
                 if (boundingRect.y < TrackGuideLeft) sendBTMessage("rotate_left");
                 else if (boundingRect.y + boundingRect.height > TrackGuideRight) sendBTMessage("rotate_right");
-                else sendBTMessage("stay_in_the_center");
+                else sendBTMessage("forward");//robot is in the center of the track
             }
             //Color being searched for displayed in corner (helps calibrating)
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
@@ -207,8 +186,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             BlobColorHsv.val[i] /= pointCount;
         //get color
         BlobColorRgba = convertScalarHsv2Rgba(BlobColorHsv);
-        Log.i(TAG, "Touched rgba color: (" + BlobColorRgba.val[0] + ", " + BlobColorRgba.val[1] +
-                ", " + BlobColorRgba.val[2] + ", " + BlobColorRgba.val[3] + ")");
         Detector.setHsvColor(BlobColorHsv);
         Imgproc.resize(Detector.getSpectrum(), Spectrum, SpectrumSize);
         //The color of the track to follow has been chosen and detected
@@ -217,37 +194,35 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         touchedRegionHsv.release();
         return false; // don't need subsequent touch events
     }
-    //------------------------------------------------------------------------------------------------------------------------
+
     private static class ServerHandler extends Handler {
+
         private final WeakReference<MainActivity> mActivity;
         private String mConnMsg = null;
+
         ServerHandler(MainActivity activity) {
             mActivity = new WeakReference<>(activity);
         }
         void init() {
             mConnMsg = mActivity.get().getString(R.string.title_not_connected);
         }
+
         @Override
         public void handleMessage(Message msg) {
             MainActivity activity = mActivity.get();
             if (activity == null) return;
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case Server.STATE_CONNECTED:
-                            Toast.makeText(activity, mConnMsg, Toast.LENGTH_LONG).show();
-                            break;
-                        case Server.STATE_LISTEN:
-                        case Server.STATE_NONE:
-                            Toast.makeText(activity, activity.getString(R.string.title_not_connected), Toast.LENGTH_LONG).show();
-                            break;
-                    }
+                    if (msg.arg1 == Server.STATE_CONNECTED)
+                        Toast.makeText(activity, mConnMsg, Toast.LENGTH_LONG).show();
                     break;
                 case Constants.MESSAGE_READ:
                     try {
-                        new String((byte[]) msg.obj, 0, msg.arg1);// construct a string from the valid bytes in the buffer
+                        // construct a string from the valid bytes in the buffer
+                        new String((byte[]) msg.obj, 0, msg.arg1);
                     } catch (StringIndexOutOfBoundsException e) {
-                        System.exit(-1);//EV3 is no longer connected
+                        //EV3 is no longer connected
+                        System.exit(-1);
                     }
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
@@ -261,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             }
         }
     }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
     protected void onResume(){
         super.onResume();
@@ -275,58 +250,84 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         server.start();
     }
-    //------------------------------------------------------------------------------------------------------
-    private void checkPermissions() {
+
+    private void checkBTpermissions() {
         final List<String> missingPermissions = new ArrayList<>();
         for (final String permission : REQUIRED_SDK_PERMISSIONS) {
             final int result = ContextCompat.checkSelfPermission(this, permission);
             if (result != PackageManager.PERMISSION_GRANTED)  missingPermissions.add(permission);
         }
         if (!missingPermissions.isEmpty()) {
-            // request required (and missing) permissions
-            final String[] permissions = missingPermissions.toArray(new String[0]);
-            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+            requestPermissions(missingPermissions.toArray(new String[0]), PERMISSION_REQUEST_CODE);
         } else {
-            // We already have them all
+            // all permissions granted
             final int[] grantResults = new int[REQUIRED_SDK_PERMISSIONS.length];
             Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
             onRequestPermissionsResult(PERMISSION_REQUEST_CODE, REQUIRED_SDK_PERMISSIONS, grantResults);
         }
     }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //initial request
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
-            //Camera can be used
             Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
             initializeCamera(CameraView, activeCamera);
-
+        //later request from checkBTpermissions()
         } else if (requestCode == PERMISSION_REQUEST_CODE) {
             for (int index = permissions.length - 1; index >= 0; --index) {
                 if (grantResults[index] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Required permission '" + permissions[index]
-                            + "' not granted, exiting", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, permissions[index] + " not granted", Toast.LENGTH_LONG).show();
                     finish();
                     return;
                 }
             }
-            server = new Server(this, mHandler);
+            server = new Server(mHandler);
             server.start();
         } else Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
     }
-    //------------------------------------------------------------------------------------------------------
+
+    //Enables Camera when OpenCV loads correctly
+    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public void onManagerConnected(int status) {
+            if (status == BaseLoaderCallback.SUCCESS){
+                CameraView.enableView();
+                CameraView.setOnTouchListener(MainActivity.this);
+            } else super.onManagerConnected(status);
+        }
+    };
+
+    //Helps with the app starting up fast (instead of waiting for onResume())
+    static{
+        if (OpenCVLoader.initDebug()) Log.d(TAG, "OpenCV is configured correctly");
+        else Log.d(TAG, "OpenCV is NOT configured correctly");
+    }
+
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) { super.onPointerCaptureChanged(hasCapture); }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
-    protected void onDestroy() { super.onDestroy(); if (CameraView != null) CameraView.disableView(); }
-    //------------------------------------------------------------------------------------------------------
+    protected void onDestroy() {
+        super.onDestroy();
+        if (CameraView != null) CameraView.disableView();
+    }
+
     @Override
-    protected void onPause() { super.onPause(); if (CameraView != null) CameraView.disableView();
+    protected void onPause() {
+        super.onPause();
+        if (CameraView != null) CameraView.disableView();
         server.stop();
     }
-    //------------------------------------------------------------------------------------------------------
+
     @Override
-    public void onCameraViewStopped() { try {mRgba.release();} catch(NullPointerException e){Log.d(TAG, "No frame to release");}}
+    public void onCameraViewStopped() {
+        try {
+            mRgba.release();
+        } catch(NullPointerException e){
+            Log.d(TAG, "No frame to release");
+        }
+    }
 }

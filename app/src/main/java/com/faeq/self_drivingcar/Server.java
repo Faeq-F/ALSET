@@ -1,24 +1,21 @@
 package com.faeq.self_drivingcar;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class Server {
+public class Server {
 
     private final static int SERVER_PORT = 1234;
-    private Handler mHandler;
+    private final Handler mHandler;
 
     private int mState;
-    private int mNewState;  // field so that we can track state in the debug log.
 
     private ServerThread serverThread;
     private ConnectionThread connectionThread;
@@ -28,120 +25,72 @@ class Server {
     static final int STATE_LISTEN = 1;     // now listening for incoming connections
     static final int STATE_CONNECTED = 2;  // now connected to a remote device
 
-    private static final String TAG = "EV3Sensors::Server";
+    private static final String TAG = "Server";
 
-    Server(Activity activity, Handler handler) {
+    Server(Handler handler) {
         mHandler = handler;
         mState = STATE_NONE;
-        mNewState = mState;
     }
 
-    /**
-     * Stops the service. Specifically stop all Threads
-     * Called by Activity.OnPause
-     */
+    //stop all threads (stopping server) onPause
     synchronized void stop() {
-        Log.d(TAG, "start");
-
+        Log.d(TAG, "stop");
         // Cancel any thread currently running a connection
         if (connectionThread != null) {
             connectionThread.cancel();
             connectionThread = null;
         }
-
         if (serverThread != null) {
             serverThread.cancel();
             serverThread = null;
         }
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
-    /**
-     * Start the service. Specifically start ServerThread to begin a
-     * session in listening (server) mode. Called by the Activity onResume()
-     */
+    //start ServerThread - begin a session in listening mode onResume()
     synchronized void start() {
         Log.d(TAG, "start");
-
         // Cancel any thread currently running a connection
         if (connectionThread != null) {
             connectionThread.cancel();
             connectionThread = null;
         }
-
         if (serverThread == null) {
             serverThread = new ServerThread();
             serverThread.start();
         }
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
-
-    /**
-     * Start the ConnectedThread to begin managing an EV3 connection
-     *
-     * @param socket The Socket on which the connection was made
-     * @param EV3name The EV3 that has been connected
-     */
+    //Start the ConnectedThread to begin managing the EV3 connection
     private synchronized void connected(Socket socket, String EV3name) {
         Log.d(TAG, "connected");
-
         // Cancel any thread currently running a connection
         if (connectionThread != null) {
             connectionThread.cancel();
             connectionThread = null;
         }
-
         if (serverThread != null) {
             serverThread.cancel();
             serverThread = null;
         }
-
-        // Start the thread to manage the connection and perform transmissions
         connectionThread = new ConnectionThread(socket);
         connectionThread.start();
-
-        // Send the name of the connected device back to the UI Activity
+        // Send the name of the EV3 back to the Main Activity
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.DEVICE_NAME, EV3name);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
-
-    /**
-     * Update UI title according to the current state of the chat connection
-     */
-    private synchronized void updateUserInterfaceTitle() {
-        mState = getState();
-        Log.d(TAG, "updateUserInterfaceTitle() " + mNewState + " -> " + mState);
-        mNewState = mState;
-
-        // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget();
-    }
-
-    /**
-     * Return the current connection state.
-     */
     synchronized int getState() {
         return mState;
     }
 
-    /*
-     * This internal class runs a socket server in a separate thread.
-     */
     private class ServerThread extends Thread {
         private final ServerSocket serverSocket;
 
         ServerThread() {
             ServerSocket tmp = null;
-
             // Create a new listening server socket
             try {
                 tmp = new ServerSocket(SERVER_PORT);
@@ -151,41 +100,36 @@ class Server {
             serverSocket = tmp;
             mState = STATE_LISTEN;
         }
+
         @Override
         public void run() {
             Log.d(TAG, "BEGIN  Listening (server) Thread");
-
             Socket socket;
-
             while (mState != STATE_CONNECTED) {
                 try {
-                    // This is a blocking call and will only return on a
-                    // successful connection or an exception
+                    // This is a blocking call and will only return on a successful connection or an exception
                     socket = serverSocket.accept();
                 } catch (IOException e) {
                     Log.e(TAG, "Server Socket accept() failed", e);
                     break;
                 } catch (NullPointerException e) {
-                    Log.e(TAG, "Nullpointer exception to stop crash ONLY first boot", e);
+                    Log.e(TAG, "NullPointer exception to stop crash ONLY first boot", e);
                     break;
                 }
-
                 // If a connection was accepted
                 if (socket != null) {
                     synchronized (Server.this) {
                         switch (mState) {
                             case STATE_LISTEN:
                                 // Situation normal. Start the connected thread.
-                                String name = getEV3name(socket);
+                                String name = getEV3name();
                                 if (name == null) {
                                     try {
                                         socket.close();
                                     } catch (IOException e) {
                                         Log.e(TAG, "Could not close unwanted socket", e);
                                     }
-                                } else {
-                                    connected(socket, name);
-                                }
+                                } else connected(socket, name);
                                 break;
                             case STATE_NONE:
                             case STATE_CONNECTED:
@@ -210,16 +154,11 @@ class Server {
                 Log.e(TAG, "closing Server Socket failed", e);
             }
         }
-
     }
 
-    /**
-     * Get the EV3 name
-     */
-    private String getEV3name(Socket socket) {
-        final String name_code = "Robot";
-
-        // Send the name of the connected device back to the UI Activity
+    private String getEV3name() {
+        final String name_code = "R18";
+        // Send the name of the connected device back to the Main Activity
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.DEVICE_NAME, name_code);
@@ -228,67 +167,35 @@ class Server {
         return name_code;
     }
 
-    /**
-     * This thread runs during a connection with a remote device.
-     * It handles all incoming and outgoing transmissions.
-     */
+    //handles all messages to EV3
     private class ConnectionThread extends Thread {
         private final Socket mmSocket;
-        private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
         ConnectionThread(Socket socket) {
             Log.d(TAG, "create ConnectedThread");
             mmSocket = socket;
-            InputStream tmpIn = null;
             OutputStream tmpOut = null;
-
             // Get the BluetoothSocket input and output streams
             try {
-                tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
                 Log.e(TAG, "temp sockets not created", e);
             }
-
-            mmInStream = tmpIn;
             mmOutStream = tmpOut;
             mState = STATE_CONNECTED;
         }
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
-            byte[] buffer = new byte[1024];
-            int bytes;
-
-            // Keep listening to the InputStream while connected
-            while (mState == STATE_CONNECTED) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-
-                    // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
-                } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
-                    connectionLost();
-                    break;
-                }
-            }
         }
 
-        /**
-         * Write to the connected OutStream.
-         *
-         * @param buffer The bytes to write
-         */
         void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
+                System.exit(0);//program ended on EV3
             }
         }
 
@@ -296,12 +203,10 @@ class Server {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
+                Log.e(TAG, "closing of socket failed", e);
             }
         }
     }
-
-
 
     /**
      * Write to the ConnectedThread in an unsynchronized manner
@@ -310,37 +215,13 @@ class Server {
      * @see ConnectionThread#write(byte[])
      */
     void write(byte[] out) {
-        // Create temporary object
         ConnectionThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
             if (mState != STATE_CONNECTED) return;
             r = connectionThread;
         }
-        // Perform the write unsynchronized
-        // Okay as writing to socket should be atomic.
+        // Perform the write unsynchronized (writing to socket should be atomic)
         new Thread(() -> r.write(out)).start();
     }
-
-
-    /**
-     * Indicate that the connection was lost and notify the UI Activity.
-     */
-    private void connectionLost() {
-        // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.TOAST, "Device connection was lost");
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
-
-        mState = STATE_NONE;
-        // Update UI title
-        updateUserInterfaceTitle();
-
-        // Start the service over to restart listening mode
-        Server.this.start();
-    }
-
-
 }
