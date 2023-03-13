@@ -4,6 +4,11 @@ import lejos.utility.Delay;
 
 public class movement {
 	
+	/**
+	 * Value which makes robots turn a ~90 degree turn
+	 */
+	final static int ROT90DEGREES = 235 ;
+	
 	private static BaseRegulatedMotor mL;
 	private static BaseRegulatedMotor mR;
 	private static BaseRegulatedMotor mUltraSonic;
@@ -29,11 +34,11 @@ public class movement {
 	}
 	
 	public static void SensLeft() {
-		mUltraSonic.rotate(90) ;
+		mUltraSonic.rotate(-100) ;
 	}
 	
 	public static void SensRight() {
-		mUltraSonic.rotate(-90) ;
+		mUltraSonic.rotate(100) ;
 	}
 	
 	public static void forward() {
@@ -43,31 +48,53 @@ public class movement {
 		mL.endSynchronization();
 	}
 	
+	public static void forward(int distance_to_travel) {
+		mL.startSynchronization() ;
+		
+		mL.rotate(distance_to_travel, true) ;
+		mR.rotate(distance_to_travel, true) ;
+		
+		mL.waitComplete() ;
+		mR.waitComplete() ;
+		
+		mL.endSynchronization() ;
+	}
+	
 	public static void turnLeft() {
-		mL.startSynchronization();
-		mL.forward();
-		mR.backward();
-		mL.endSynchronization();
-		Delay.msDelay(1000);
+		mL.synchronizeWith(new BaseRegulatedMotor[] {mR}) ;
+		mL.rotate(ROT90DEGREES, true) ;
+		mR.rotate(-ROT90DEGREES, true) ;
+		
+		mL.waitComplete() ;
+		mR.waitComplete() ;
+		
+		mL.endSynchronization() ;	
 	}
 	
 	public static void turnRight() {
-		mL.startSynchronization();
-		mL.backward();
-		mR.forward();
-		mL.endSynchronization();
-		Delay.msDelay(1000);
+		mL.synchronizeWith(new BaseRegulatedMotor[] {mR}) ;
+		mL.rotate(-ROT90DEGREES, true) ;
+		mR.rotate(ROT90DEGREES, true) ;
+		
+		mL.waitComplete() ;
+		mR.waitComplete() ;
+		
+		mL.endSynchronization() ;	
 	}
 	
 	public static void stop() {
 		mL.startSynchronization();
-		mL.stop();
-		mR.stop();
+		mL.stop(true) ;
+		mR.stop(true) ;
 		mL.endSynchronization();
 	}
 	
 	public static void setSpeed(int speed) {
 		mL.setSpeed(speed);
 		mR.setSpeed(speed);
+	}
+	
+	public static int getTachoCount() {
+		return mL.getTachoCount() ;
 	}
 }
