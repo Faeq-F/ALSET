@@ -29,16 +29,21 @@ public class Main {
 		//Initializing threads
 		ExitThread CheckExit = new ExitThread();
 		
+		//initialize arbitrator with behaviors
 		Arbitrator arbitrator = new Arbitrator(new Behavior[] {});
 		
-		//show main menu
-
-		//start program
-		Button.LEDPattern(1); //steady green light
+		//show welcome screen with author names and version info
+		
+		
+		Button.LEDPattern(5); //flashing orange light
+		
+		//wait for key press
 
 		//starting threads
 		CheckExit.start();
-
+		
+		
+		Button.LEDPattern(1); //steady green light
 		//start movement
 		arbitrator.go();
 
