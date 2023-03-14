@@ -9,10 +9,8 @@ public class BluetoothInfo extends Thread{
 	
 	public void run(){
 		try {
-			Socket clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);
-			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			while (true) {
-				Main.setMessageFromPhone(in.readLine());
+				Main.setMessageFromPhone(Main.btconnect.in.readLine());
 				System.out.println(Main.getMessageFromPhone());
 			}
 		} catch (IOException e1) {
@@ -20,10 +18,4 @@ public class BluetoothInfo extends Thread{
 		}
 	}
 	
-	//testing method
-	public static void main(final String[] array) {
-		final BluetoothInfo bluetoothInfo = new BluetoothInfo();
-        new ExitThread().start();
-        bluetoothInfo.run();
-    }
 }
