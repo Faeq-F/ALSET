@@ -4,6 +4,7 @@ import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
+import lejos.hardware.lcd.LCD;
 
 public class Main {
 	
@@ -24,26 +25,40 @@ public class Main {
 	public static void main(String[] args) {
 		
 		//Initializing behaviors
-		
+		FindTrack findTrack = new FindTrack();
+		ObjectTraversal objectTraversal = new ObjectTraversal();
+		FollowTrack followTrack = new FollowTrack();
+		BluetoothConnection BTConnection = new BluetoothConnection();
 		
 		//Initializing threads
-		ExitThread CheckExit = new ExitThread();
+		ExitThread CheckExit = new ExitThread(); 
+		BluetoothInfo BTInfo = new BluetoothInfo();
+		ObjectDetection ObjDet = new ObjectDetection();
 		
 		//initialize arbitrator with behaviors
-		Arbitrator arbitrator = new Arbitrator(new Behavior[] {});
+		Arbitrator arbitrator = new Arbitrator(
+				new Behavior[] {BTConnection, findTrack, followTrack, objectTraversal}
+		);
 		
 		//show welcome screen with author names and version info
-		
+		LCD.clear();
+		LCD.drawString("Welcome", 0 , 0 );
+		LCD.drawString("Verson 17.1", 0 , 1);
 		
 		Button.LEDPattern(5); //flashing orange light
 		
 		//wait for key press
-
+		while(true){
+			if(Button.DOWN != null) break;
+		}
+		
 		//starting threads
+		BTInfo.start();
+		ObjDet.start();
 		CheckExit.start();
 		
-		
 		Button.LEDPattern(1); //steady green light
+		
 		//start movement
 		arbitrator.go();
 
