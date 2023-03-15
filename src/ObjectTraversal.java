@@ -1,28 +1,8 @@
 
-import lejos.hardware.motor.BaseRegulatedMotor;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.motor.EV3MediumRegulatedMotor;
-import lejos.hardware.port.MotorPort;
 import lejos.robotics.subsumption.Behavior;
 import lejos.utility.Delay;
 
 public class ObjectTraversal implements Behavior{
-
-	@Override
-	public boolean takeControl() {
-		return false;
-		
-	}
-
-	@Override
-	public void action() {
-		
-	}
-
-	@Override
-	public void suppress() {
-		
-	}
 	
 	// NOTE: 
 	//	- To make robot rotate ~90 degrees on the spot, make it rotate by 200 amounts.
@@ -30,13 +10,19 @@ public class ObjectTraversal implements Behavior{
 	//	  meaning that 90 makes it turn to its right, 0 to the front and so on. 
 	//	- REMEMBER, ultrasonic's motor is set 0 as when PROGRAM STARTS, there is no absolute.	
 	
-	final static float WALLLENFROMROBOT = 0.126f ;
-	
+	@Override
+	public boolean takeControl() {
+		if (Main.getDistanceFromObject() < WALLFROMROBOT) return true ;
+		
+		return false ;
+		
+	}
+
+	final static float WALLFROMROBOT = 0.126f ;
 	final static int DELAYBY = 1000 ;
 	
-	
-	
-	public static void main(String[] args) {		
+	@Override
+	public void action() {
 		// ULTRASONIC SENSOR PARTS
 		// assign tacho to vars
 		int tach_start, tach_end ;
@@ -58,7 +44,7 @@ public class ObjectTraversal implements Behavior{
 		float current_distance ;
 		while(true) {
 			current_distance = Main.getDistanceFromObject();
-			if (current_distance >= WALLLENFROMROBOT) {
+			if (current_distance >= WALLFROMROBOT) {
 				break;
 			}
 		}
@@ -72,10 +58,8 @@ public class ObjectTraversal implements Behavior{
 		// stop robot
 		movement.stop() ;
 		
-		
 		// turn -90, do NOT change distance sensor position
 		movement.turnRight() ;
-		
 				
 		// keep going forwards for a little bit before starting to 
 		// detect wall as when robot turns, sensor is a bit behind
@@ -87,7 +71,7 @@ public class ObjectTraversal implements Behavior{
 		// as obstruction may be a box.
 		while(true) {
 			current_distance = Main.getDistanceFromObject();
-			if (current_distance >= WALLLENFROMROBOT) {
+			if (current_distance >= WALLFROMROBOT) {
 				break;
 			}	
 		}
@@ -109,7 +93,27 @@ public class ObjectTraversal implements Behavior{
 		// then rotate 90. In theory, we should be back where robot 
 		// was when it was behind the box/obstruction.
 		movement.SensLeft() ;
-
 	}
+	
+	public static void main(String[] args) {
+
+		ObjectTraversal ot = new ObjectTraversal() ;
+		movement.initializeAll() ;
+		ExitThread checkExit = new ExitThread() ;
+		ObjectDetection OD = new ObjectDetection() ;
+		
+		
+		OD.start() ;
+		checkExit.start() ;
+		ot.action() ;
+		
+		
+	}
+
+	@Override
+	public void suppress() {
+		
+	}
+	
 
 }
