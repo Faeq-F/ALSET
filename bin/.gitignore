@@ -1,0 +1,4 @@
+/BluetoothInfo.class
+/Main.class
+*.class
+build/*
