@@ -20,9 +20,11 @@ public class FollowTrack implements Behavior{
 					movement.forward();
 					break;
 				case "turn_left":
+					movement.backward();
 					movement.turnLeft();
 					break;
 				case "turn_right":
+					movement.backward();
 					movement.turnRight();
 					break;
 			}
