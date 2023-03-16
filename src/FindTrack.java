@@ -6,7 +6,7 @@ public class FindTrack implements Behavior{
 
 	@Override
 	public boolean takeControl() {
-		if (Main.connectedToPhone && !(Main.TrackFound))
+		if (Main.connectedToPhone && Main.getMessageFromPhone() == "no_track_found")
 			return true;
 		return false;
 	} 

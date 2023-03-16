@@ -12,8 +12,7 @@ public class Main {
 	public static int PhoneSocketPort = 1234;
 	private static String messageFromPhone;
 	public static BluetoothConnection BTConnection;
-	public static boolean connectedToPhone = false; 
-	public static boolean TrackFound = true;
+	public static boolean connectedToPhone = false;
 	
 	public static Port TouchSensorPort = SensorPort.S4;
 	public static float LOW_BATTERY = 0.005f;
