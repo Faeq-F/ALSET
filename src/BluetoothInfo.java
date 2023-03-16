@@ -10,7 +10,7 @@ public class BluetoothInfo extends Thread{
 	public void run(){
 		try {
 			while (true) {
-				Main.setMessageFromPhone(Main.btconnect.in.readLine());
+				Main.setMessageFromPhone(Main.BTConnection.in.readLine());
 				System.out.println(Main.getMessageFromPhone());
 			}
 		} catch (IOException e1) {

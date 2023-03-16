@@ -11,6 +11,8 @@ public class Main {
 	public static String PhoneIP = "10.0.1.2";
 	public static int PhoneSocketPort = 1234;
 	private static String messageFromPhone;
+	public static BluetoothConnection BTConnection;
+	public static boolean connectedToPhone = false;
 	
 	public static Port TouchSensorPort = SensorPort.S4;
 	public static float LOW_BATTERY = 0.005f;
@@ -28,7 +30,7 @@ public class Main {
 		FindTrack findTrack = new FindTrack();
 		ObjectTraversal objectTraversal = new ObjectTraversal();
 		FollowTrack followTrack = new FollowTrack();
-		BluetoothConnection BTConnection = new BluetoothConnection();
+		BTConnection = new BluetoothConnection();
 		
 		//Initializing threads
 		ExitThread CheckExit = new ExitThread(); 
