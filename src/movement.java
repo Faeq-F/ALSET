@@ -54,32 +54,51 @@ public class movement {
 		mL.rotate(distance_to_travel, true) ;
 		mR.rotate(distance_to_travel, true) ;
 		
+		mL.endSynchronization() ;
+		
 		mL.waitComplete() ;
 		mR.waitComplete() ;
+	}
+	
+	public static void backward() {
+		mL.startSynchronization() ;
+		
+		mL.stop() ;
+		mR.stop() ;
+		
+		mL.backward() ;
+		mR.backward() ;
+		
+		Delay.msDelay(500) ;
 		
 		mL.endSynchronization() ;
+		
+		mL.waitComplete() ;
+		mR.waitComplete() ;
 	}
 	
 	public static void turnLeft() {
 		mL.synchronizeWith(new BaseRegulatedMotor[] {mR}) ;
+		
 		mL.rotate(ROT90DEGREES, true);
 		mR.rotate(-ROT90DEGREES, true);
 		
+		mL.endSynchronization() ;	
+		
 		mL.waitComplete() ;
 		mR.waitComplete() ;
-		
-		mL.endSynchronization() ;	
 	}
 	
 	public static void turnRight() {
 		mL.synchronizeWith(new BaseRegulatedMotor[] {mR}) ;
+		
 		mL.rotate(-ROT90DEGREES, true) ;
 		mR.rotate(ROT90DEGREES, true) ;
 		
+		mL.endSynchronization() ;	
+		
 		mL.waitComplete() ;
 		mR.waitComplete() ;
-		
-		mL.endSynchronization() ;	
 	}
 	
 	public static void stop() {
