@@ -2,13 +2,7 @@
 import lejos.robotics.subsumption.Behavior;
 import lejos.utility.Delay;
 
-public class ObjectTraversal implements Behavior{
-	
-	// NOTE: 
-	//	- To make robot rotate ~90 degrees on the spot, make it rotate by 200 amounts.
-	//	- The ultrasonic sensor motor's turn is clockwise relative to the top of the robot,
-	//	  meaning that 90 makes it turn to its right, 0 to the front and so on. 
-	//	- REMEMBER, ultrasonic's motor is set 0 as when PROGRAM STARTS, there is no absolute.	
+public class ObjectTraversal implements Behavior{	
 	
 	@Override
 	public boolean takeControl() {
@@ -18,8 +12,18 @@ public class ObjectTraversal implements Behavior{
 		
 	}
 
+	/**
+	 * How close should an obstruction be from the robot before this 
+	 * class is executed.
+	 */
 	final static float WALLFROMROBOT = 0.126f ;
+	
+	/**
+	 * Value used for a delay so to allow robot to move forwards for a whike
+	 * before running any further code.
+	 */
 	final static int DELAYBY = 1000 ;
+	
 	
 	@Override
 	public void action() {
@@ -77,6 +81,8 @@ public class ObjectTraversal implements Behavior{
 		}
 		
 		// keep going forwards for a little bit then stop
+		// otherwise if detecting space instantly it will not detect
+		// anything as the obstruction is a bit ahead of the robot.
 		Delay.msDelay(DELAYBY) ;
 				
 		// stop robot
@@ -90,13 +96,19 @@ public class ObjectTraversal implements Behavior{
 		float distance_travelled = tach_end - tach_start ;
 		movement.forward((int) distance_travelled) ;
 		
-		// then rotate 90. In theory, we should be back where robot 
+		// then rotate 90 and rotate UltraSonic sensor back to its original
+		// direction. In theory, we should be back where robot 
 		// was when it was behind the box/obstruction.
 		movement.SensLeft() ;
+		movement.turnLeft() ;
 	}
 	
+	
+	/**
+	 * Used for testing purposes
+	 * @param args
+	 */
 	public static void main(String[] args) {
-
 		ObjectTraversal ot = new ObjectTraversal() ;
 		movement.initializeAll() ;
 		ExitThread checkExit = new ExitThread() ;
@@ -106,6 +118,11 @@ public class ObjectTraversal implements Behavior{
 		OD.start() ;
 		checkExit.start() ;
 		ot.action() ;
+		
+		OD.stop_thread = true ;
+		
+		
+//		System.exit(0) ;
 		
 		
 	}

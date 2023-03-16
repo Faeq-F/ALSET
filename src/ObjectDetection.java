@@ -11,7 +11,7 @@ public class ObjectDetection extends Thread {
 	boolean stop_thread = false ;
 	
 	
-	public void run(){
+	public void run() {
 		float[] sample = new float[2] ;
 		while (true){
 			//read values from UltraSonic sensor and save to a field in movement
