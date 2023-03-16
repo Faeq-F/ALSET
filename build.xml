@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Change the next property to give your jar file a (more) sensible name -->
-<project basedir="." default="jar" name="SelfDrivingEV30">
+<project basedir="." default="jar" name="ALSET">
 <!-- Change the next property to be the name of your program class that contains the `main` method -->
-<property name="main-class" value="FollowTrack" />
+<property name="main-class" value="Main" />
 <property environment="env" />
 <property name="source.dir" value="src" />
 <property name="lib.dir" value="${env.EV3_HOME}/lib/ev3" />

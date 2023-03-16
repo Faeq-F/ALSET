@@ -15,6 +15,7 @@ public class BluetoothConnection implements Behavior{
 
 	@Override
 	public void action() {
+		_suppressed = false;
 		if (!_suppressed){
 			try {
 				clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);

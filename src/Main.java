@@ -50,9 +50,7 @@ public class Main {
 		Button.LEDPattern(5); //flashing orange light
 		
 		//wait for key press
-		while(true){
-			if(Button.DOWN != null) break;
-		}
+		Button.waitForAnyPress();
 		
 		//starting threads
 		BTInfo.start();

@@ -11,6 +11,7 @@ public class FindTrack implements Behavior{
 
 	@Override
 	public void action() {
+		_suppressed = false;
 		while (!_suppressed) {
 			//go in a square
 			//use methods that return immediately

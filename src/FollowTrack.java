@@ -11,6 +11,7 @@ public class FollowTrack implements Behavior{
 
 	@Override
 	public void action() {
+		_suppressed = false;
 		//check if suppressed
 		while (!_suppressed) {
 			//if not suppressed, follow message instructions
