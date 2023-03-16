@@ -12,10 +12,7 @@ public class ObjectTraversal implements Behavior{
 	
 	@Override
 	public boolean takeControl() {
-		if (Main.getDistanceFromObject() < WALLFROMROBOT) return true ;
-		
-		return false ;
-		
+		return (Main.connectedToPhone && Main.getDistanceFromObject() < WALLFROMROBOT);
 	}
 
 	final static float WALLFROMROBOT = 0.126f ;
