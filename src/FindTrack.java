@@ -6,8 +6,9 @@ public class FindTrack implements Behavior{
 
 	@Override
 	public boolean takeControl() {
-		//check if track is found & BT connected
-		return true;
+		if (Main.connectedToPhone && !(Main.TrackFound))
+			return true;
+		return false;
 	} 
 
 	@Override

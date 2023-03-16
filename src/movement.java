@@ -62,8 +62,8 @@ public class movement {
 	
 	public static void turnLeft() {
 		mL.synchronizeWith(new BaseRegulatedMotor[] {mR}) ;
-		mL.rotate(ROT90DEGREES, true) ;
-		mR.rotate(-ROT90DEGREES, true) ;
+		mL.rotate(ROT90DEGREES, true);
+		mR.rotate(-ROT90DEGREES, true);
 		
 		mL.waitComplete() ;
 		mR.waitComplete() ;

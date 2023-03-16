@@ -19,6 +19,7 @@ public class BluetoothConnection implements Behavior{
 			try {
 				clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);
 				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				Main.connectedToPhone = true;
 			} catch(Exception e){
 				e.printStackTrace();
 			}
