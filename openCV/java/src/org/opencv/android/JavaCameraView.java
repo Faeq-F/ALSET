@@ -66,6 +66,19 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
         super(context, attrs);
     }
 
+    private boolean lightOn = false;
+    public void toggleLight(){
+        Camera.Parameters params = mCamera.getParameters();
+        if (lightOn){
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            lightOn = false;
+        } else{
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            lightOn = true;
+        }
+        mCamera.setParameters(params);
+    }
+
     protected boolean initializeCamera(int width, int height) {
         Log.d(TAG, "Initialize java camera");
         boolean result = true;
@@ -175,7 +188,7 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
                     //Added parameters for self-driving car app
                     params.setPreviewFrameRate(30);
                     //params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                    params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                    //params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
 
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();

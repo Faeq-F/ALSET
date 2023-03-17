@@ -26,5 +26,21 @@
         tools:ignore="TextContrastCheck"
         tools:visibility="visible" />
 
+    <Button
+        android:id="@+id/bLight"
+        android:layout_width="63dp"
+        android:layout_height="68dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="172dp"
+        android:layout_marginBottom="171dp"
+        android:backgroundTint="#00FFFFFF"
+        android:rotation="90"
+        android:text="🔦"
+        android:textAlignment="center"
+        android:textSize="32sp" />
+
 
 </RelativeLayout>

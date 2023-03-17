@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 //OpenCV imports
 import org.opencv.android.BaseLoaderCallback;
@@ -93,6 +94,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Log.d(TAG, "Permission prompt");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
         }
+        //handle light button
+        Button button = (Button) findViewById(R.id.bLight);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                CameraView.toggleLight();
+            }
+        });
         //fullscreen Camera view
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //keep the screen on
