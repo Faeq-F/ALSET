@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Scalar BoundingBoxColor;
 
     //Buffer for sides of guide - activity_main layout
-    int TrackCenterBuffer = 74;
+    int TrackCenterBuffer = 14;
     //Track guide bounds for detecting rotation
     int TrackGuideLeft;
     int TrackGuideRight;
@@ -132,6 +132,29 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         return new Scalar(pointMatRgba.get(0, 0));
     }
 
+    public static String message=null;
+    private class sendMessages extends Thread{
+        sendMessages(){}
+
+        public void run(){
+            while(true){
+                try {
+                    Log.d("Send to EV3", MainActivity.message);
+                    if (server.getState() != Server.STATE_CONNECTED) continue;
+                    // Get the message bytes and tell the BluetoothChatService to write
+                    server.write((MainActivity.message + "\n").getBytes());
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        Log.d("Send to EV3", "could not sleep");
+                    }
+                } catch(Exception e){
+                    Log.d("Send to EV3", "e: "+e);
+                }
+            }
+        }
+    }
+
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
@@ -159,11 +182,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         return mRgba;
     }
     //------------------------------------------------------------------------------------------------------
-    public void sendBTMessage(String message){
-        Log.d("Send to EV3", message);
-        if (server.getState() != Server.STATE_CONNECTED)  return;
+    public void sendBTMessage(String essage){
+        MainActivity.message = essage;
+        //if (server.getState() != Server.STATE_CONNECTED)  return;
         // Get the message bytes and tell the BluetoothChatService to write
-        server.write((message+ "\n").getBytes());
+        //server.write((message+ "\n").getBytes());
     }
     //------------------------------------------------------------------------------------------------------
     @SuppressLint("ClickableViewAccessibility")
@@ -200,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         IsColorSelected = true;
         touchedRegionRgba.release();
         touchedRegionHsv.release();
+
         return false; // don't need subsequent touch events
     }
 
@@ -293,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             }
             server = new Server(mHandler);
             server.start();
+            new sendMessages().start();
         } else Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
     }
 
