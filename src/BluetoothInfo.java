@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
 
 public class BluetoothInfo extends Thread{
 	
@@ -9,9 +6,20 @@ public class BluetoothInfo extends Thread{
 	
 	public void run(){
 		try {
+			String message;
 			while (true) {
-				Main.setMessageFromPhone(Main.BTConnection.in.readLine());
-				System.out.println(Main.getMessageFromPhone());
+				if (Main.connectedToPhone) {
+					//while ((message = Main.BTConnection.in.readLine()) != null)
+				      //  lastMessage = message;
+					//if (message != null && !(message.contains("null"))) {
+						message = Main.in.readLine();
+						if (message == null || message.contains("null")) {Main.connectedToPhone = false; continue;}
+						if (message == "") message = "no_track_found";
+						//lastMessage = message;
+						Main.messageFromPhone = message;
+						System.out.println("m: "+Main.messageFromPhone);
+					//}
+				}
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();

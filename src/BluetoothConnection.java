@@ -6,23 +6,24 @@ import lejos.robotics.subsumption.Behavior;
 
 public class BluetoothConnection implements Behavior{
 	
-	private Boolean _suppressed = false;
-	private Socket clientSocket;
-	public BufferedReader in;
+	private boolean _suppressed = false;
 
 	@Override
-	public boolean takeControl() {return true;}//Lowest behavior - should always return true
+	public boolean takeControl() {
+		return !Main.connectedToPhone;
+	}
+	//public boolean takeControl() {return true;} //Lowest behavior; should always return true
 
 	@Override
 	public void action() {
 		_suppressed = false;
 		if (!_suppressed){
 			try {
-				clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);
-				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				Main.clientSocket = new Socket(Main.PhoneIP, Main.PhoneSocketPort);
+				Main.in = new BufferedReader(new InputStreamReader(Main.clientSocket.getInputStream()));
 				Main.connectedToPhone = true;
 			} catch(Exception e){
-				e.printStackTrace();
+				System.out.println("failed to establish connection to phone - trying again");
 			}
 		}
 	}
