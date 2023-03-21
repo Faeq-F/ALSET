@@ -1,3 +1,4 @@
+import lejos.hardware.lcd.LCD;
 import lejos.robotics.subsumption.Behavior;
 
 public class FindTrack implements Behavior{
@@ -18,7 +19,8 @@ public class FindTrack implements Behavior{
 		_suppressed = false;
 		if (!_suppressed) {
 			movement.stop();
-			System.out.println("cannot find track");
+			LCD.clear();
+			LCD.drawString("No Track Found", 2, 3);
 		}
 	}
 

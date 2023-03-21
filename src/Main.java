@@ -113,7 +113,7 @@ public class Main {
 		gLCD.clear();
 		//start program
 		Arbitrator arbitrator = new Arbitrator(
-				new Behavior[] {followTrack, findTrack, objectTraversal, pause, BTConnection}
+				new Behavior[] {pause, followTrack, findTrack, objectTraversal, BTConnection}
 		);
 		
 		//starting threads
@@ -156,13 +156,13 @@ public class Main {
 		gLCD.drawString("Calibration", 5, 0, 0);
 		//text for screen
 		gLCD.setFont(Font.getSmallFont());//y coords increase by 10 
-		gLCD.drawString("If you have not already", textX, 20, 0);
-		gLCD.drawString("done so, open the ALSET", textX, 30, 0);
-		gLCD.drawString("app and place the robot", textX, 40, 0);
-		gLCD.drawString("on the track. Tap the", textX, 50, 0);
-		gLCD.drawString("track, on screen, to", textX, 60, 0);
-		gLCD.drawString("calibrate the app; you", textX, 70, 0); 
-		gLCD.drawString("may use the flashlight", textX, 80, 0);
+		gLCD.drawString("If you have not already done", textX, 20, 0);
+		gLCD.drawString("so, open the ALSET app and", textX, 30, 0);
+		gLCD.drawString("place the robot on the track", textX, 40, 0);
+		gLCD.drawString("Use the middle rectangle as a", textX, 50, 0);
+		gLCD.drawString("guide. Tap the track, on", textX, 60, 0);
+		gLCD.drawString("screen, to calibrate the app;", textX, 70, 0); 
+		gLCD.drawString("you may use the flashlight", textX, 80, 0);
 		gLCD.drawString("for better recognition.", textX, 90, 0);
 		// Continue button
 		gLCD.fillRect(55, 100, 23, 23);

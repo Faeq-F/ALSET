@@ -1,3 +1,4 @@
+import lejos.hardware.lcd.LCD;
 import lejos.robotics.subsumption.Behavior;
 
 public class FollowTrack implements Behavior{
@@ -12,6 +13,8 @@ public class FollowTrack implements Behavior{
 		_suppressed = false;	
 		if (!_suppressed) {
 			String m = Main.messageFromPhone;
+			LCD.clear();
+			LCD.drawString("message: " + m, 2, 4);
 			if (m != null && !(m.contains("null"))){
 				switch(m){
 					case "forward":

@@ -10,13 +10,10 @@ public class TouchThread extends Thread{
 			if (Main.touched[0] == 1.0 && (!pause)) {
 				movement.stop();
 				pause = true;
-				Main.pause.action();//for increased reliability
-			} else if (Main.touched[0] == 1.0 && pause) {
+			} else if (Main.touched[0] == 1.0 && pause)
 				pause = false;
-				Main.pause.suppress();//for increased reliability
-			} else if (pause) {
+			else if (pause)
 				movement.stop();
-			}
 		}
 	}
 }
