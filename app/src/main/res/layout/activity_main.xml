@@ -26,6 +26,21 @@
         tools:ignore="TextContrastCheck"
         tools:visibility="visible" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="94dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="93dp"
+        android:background="@drawable/placement_guide"
+        android:text=""
+        android:visibility="visible"
+        tools:ignore="TextContrastCheck"
+        tools:visibility="visible" />
+
     <Button
         android:id="@+id/bLight"
         android:layout_width="63dp"
@@ -33,11 +48,12 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="172dp"
         android:layout_marginBottom="171dp"
         android:backgroundTint="#00FFFFFF"
         android:rotation="90"
+        android:shadowColor="#FFFFFF"
         android:text="🔦"
         android:textAlignment="center"
         android:textSize="32sp" />

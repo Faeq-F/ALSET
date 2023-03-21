@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Self-Driving Car</string>
+    <string name="app_name">ALSET</string>
     <string name="no_network_available">No internet adapter found - Have you set up reverse tethering?</string>
     <string name="title_connected_to">Connected to (%s) </string>
     <string name="title_not_connected">No EV3 Connected</string>

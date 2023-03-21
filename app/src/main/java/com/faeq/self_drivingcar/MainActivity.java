@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         Log.d("Send to EV3", "could not sleep");
                     }
                 } catch(Exception e){
-                    Log.d("Send to EV3", "e: "+e);
+                    Log.d("Send to EV3", "App is not calibrated");
                 }
             }
         }
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             List<MatOfPoint> contours = Detector.getContours();
             //draw contours found (green outline)
             Imgproc.drawContours(mRgba, contours, -1, ContourColor, 5);
-            if (contours.size() == 0) sendBTMessage("no_track_found");
+            if (contours.size() == 0) MainActivity.message = "no_track_found";
             //Draw a bounding box around all contours
             for (MatOfPoint c : contours){
                 //draw light blue rectangle around detected track
@@ -171,9 +171,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 Imgproc.rectangle(mRgba,boundingRect, BoundingBoxColor, 5);
                 //send message to EV3
                 //(0,0) is top left corner
-                if (boundingRect.y < TrackGuideLeft) sendBTMessage("rotate_left");
-                else if (boundingRect.y + boundingRect.height > TrackGuideRight) sendBTMessage("rotate_right");
-                else sendBTMessage("forward");//robot is in the center of the track
+                if (boundingRect.y < TrackGuideLeft) MainActivity.message = "rotate_left";
+                else if (boundingRect.y + boundingRect.height > TrackGuideRight) MainActivity.message = "rotate_right";
+                else MainActivity.message = "forward";//robot is in the center of the track
             }
             //Color being searched for displayed in corner (helps calibrating)
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
@@ -181,14 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         return mRgba;
     }
-    //------------------------------------------------------------------------------------------------------
-    public void sendBTMessage(String essage){
-        MainActivity.message = essage;
-        //if (server.getState() != Server.STATE_CONNECTED)  return;
-        // Get the message bytes and tell the BluetoothChatService to write
-        //server.write((message+ "\n").getBytes());
-    }
-    //------------------------------------------------------------------------------------------------------
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
