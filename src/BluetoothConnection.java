@@ -12,7 +12,6 @@ public class BluetoothConnection implements Behavior{
 	public boolean takeControl() {
 		return !Main.connectedToPhone;
 	}
-	//public boolean takeControl() {return true;} //Lowest behavior; should always return true
 
 	@Override
 	public void action() {

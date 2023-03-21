@@ -9,21 +9,18 @@ public class BluetoothInfo extends Thread{
 			String message;
 			while (true) {
 				if (Main.connectedToPhone) {
-					//while ((message = Main.BTConnection.in.readLine()) != null)
-				      //  lastMessage = message;
-					//if (message != null && !(message.contains("null"))) {
-						message = Main.in.readLine();
-						if (message == null || message.contains("null")) {Main.connectedToPhone = false; continue;}
-						if (message == "") message = "no_track_found";
-						//lastMessage = message;
-						Main.messageFromPhone = message;
-						System.out.println("m: "+Main.messageFromPhone);
-					//}
+					message = Main.in.readLine();
+					if (message == null || message.contains("null")){
+						Main.connectedToPhone = false;
+						continue;
+					} else if (message == "")
+						message = "no_track_found";
+					Main.messageFromPhone = message;
+					System.out.println("recieved: " + Main.messageFromPhone);
 				}
 			}
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("could not read message from connected phone");
 		}
 	}
-	
 }

@@ -101,7 +101,7 @@ public class movement {
 		Main.mR.setSpeed(speed);
 	}
 	
-	/**returns the rotational speed of the wheels (rpm)
+	/**returns how far the wheel motors have turned
 	 * @return the tachometer count
 	 */
 	public static int getTachoCount() {

@@ -20,61 +20,55 @@ import lejos.hardware.motor.EV3MediumRegulatedMotor;
 
 public class Main {
 	
-	public final static String PhoneIP = "10.0.1.2";
-	public final static int PhoneSocketPort = 1234;
-	public static Socket clientSocket;
-	public static BufferedReader in;
-	public static String messageFromPhone;
-	public static BluetoothConnection BTConnection;
-	public static boolean connectedToPhone = false;
-	
-	private final static Port TouchSensorPort = SensorPort.S4;
-	public static NXTTouchSensor TouchSensor;
-	public static SampleProvider spTouch;
-	public static float[] touched = new float[1];
 	public final static float LOW_BATTERY = 0.005f;
 	
-	public final static Port UltraSonicMotorPort = MotorPort.C;
+	private static GraphicsLCD gLCD = LocalEV3.get().getGraphicsLCD();
+	private static int textX = 2; //give text a little bit of padding on-screen
+	
+	public final static String PhoneIP = "10.0.1.2";
+	public final static int PhoneSocketPort = 1234;
+	public static boolean connectedToPhone = false;
+	public static String messageFromPhone;
+	public static Socket clientSocket;
+	public static BufferedReader in;
+	
+	private final static Port TouchSensorPort = SensorPort.S4;
+	public static float[] touched = new float[1];
+	public static NXTTouchSensor TouchSensor;
+	public static SampleProvider spTouch;
+	public static TouchThread touch;
+	
 	private final static Port UltraSonicSensorPort = SensorPort.S1;
+	private final static Port UltraSonicMotorPort = MotorPort.C;
 	public static EV3UltrasonicSensor UltraSonicSensor;
-	public static SampleProvider spUS;
 	public static float[] distance = new float[1];
 	private static float DistanceFromObject;
-	/**
-	 * How close an obstruction should be from the robot before this behavior is executed.
-	 */
+	public static SampleProvider spUS;
+	//How close an obstruction should be from the robot before the object traversal behavior is executed.
 	public final static float distanceFromObject = 0.126f;
+	//delay to prevent further code from running too early in ObjectTraversal
+	public final static int delayOT = 1700;
 	
-	/**
-	 * delay to prevent further code from running too early in ObjectTraversal
-	 */
-	public final static int delayOT = 1100;
-	
-	//storing motor revolutions
-	public static int tach_start, tach_end;
-	
-	/**
-	 * How long (ms) to go backward for before turning when there is no obstacle
-	 */
-	public final static long BackwardsTurnNoObstacle = 1250;//1085
-	public final static int forwardTurnNoObstacle = 500;
-	public final static int speed = 200; //decided upon as an appropriate speed
 	public final static Port LeftMotorPort = MotorPort.A;
 	public final static Port RightMotorPort = MotorPort.D;
-	/**
-	 * how much the motor needs to rotate by (degrees) to make the robot turn ~90 degrees
-	 */
-	public final static int ROT90DEGREES = 227;//235 original
-	/**
-	 * The motor connected to the left wheel of the robot
-	 */
+	public final static int speed = 200; //decided upon as an appropriate speed
+	//How long (ms) to go backward for before turning when there is no obstacle
+	public final static long BackwardsTurnNoObstacle = 1240;
+	//number of degrees to turn motors by, after turning when there is no obstacle
+	public final static int forwardTurnNoObstacle = 500;
+	//how much the motor needs to rotate by (degrees) to make the robot turn ~90 degrees
+	public final static int ROT90DEGREES = 227;
+	// motors for the robot
 	public static BaseRegulatedMotor mL;
 	public static BaseRegulatedMotor mR;
 	public static BaseRegulatedMotor mUltraSonic;
-	
+	//find track behavior for when followTrack can't run
 	public static FindTrack findTrack;
+	//Pause behavior for when user touches the touchSensor
+	public static Pause pause;
 
 	public static void main(String[] args) {
+		
 		//Initializing motors
 		mUltraSonic = new EV3MediumRegulatedMotor(Main.UltraSonicMotorPort);
 		mL = new EV3LargeRegulatedMotor(Main.LeftMotorPort);
@@ -93,65 +87,31 @@ public class Main {
 		findTrack = new FindTrack();
 		ObjectTraversal objectTraversal = new ObjectTraversal();
 		FollowTrack followTrack = new FollowTrack();
-		BTConnection = new BluetoothConnection();
-		Pause pause = new Pause();
+		BluetoothConnection BTConnection = new BluetoothConnection();
+		pause = new Pause();
 		
 		//Initializing threads
 		ExitThread CheckExit = new ExitThread(); 
 		BluetoothInfo BTInfo = new BluetoothInfo();
 		ObjectDetection ObjDet = new ObjectDetection();
-		TouchThread touch = new TouchThread();
+		touch = new TouchThread();
 		
-		//initialize arbitrator with behaviors
-//		Arbitrator arbitrator = new Arbitrator(
-//				new Behavior[] {BTConnection, findTrack, followTrack, objectTraversal}
-//		);
-		
-
-		Button.LEDPattern(4); //flashing green light
-		//show welcome screen with author names and version info
-		GraphicsLCD g = LocalEV3.get().getGraphicsLCD();
+		//flashing green light
+		Button.LEDPattern(4);
 		LCD.clear();
-		g.clear();
-		g.drawString("Welcome to ALSET", 5, 0, 0);
-		g.setFont(Font.getSmallFont());
-		g.drawString("A path following robot", 2, 20, 0);
-		g.drawString("", 2, 30, 0);
-		g.drawString("Version 17.1", 2, 40, 0);
-		g.drawString("", 2, 50, 0);
-		g.drawString("Authors:", 2, 60, 0);
-		g.drawString("Faeq Faisal", 2, 70, 0); 
-		g.drawString("Leonardo Loureiro", 2, 80, 0);
-		g.drawString("Morris Sardo", 2, 90, 0);
 		
-		// Enter GUI button:
-		g.fillRect(55, 100, 23, 23);
-		g.drawString("Calibration Instructions", 60, 107, 0,true);
-		//LCD.drawString("Welcome", 0 , 0 );
-		//LCD.drawString("Version 17.1", 0 , 1);
-		
-		//wait for key press
+		//show welcome screen
+		showWelcome();
 		Button.waitForAnyPress();
 		if(Button.ESCAPE.isDown()) System.exit(0);
-		g.clear();
-		g.setFont(Font.getDefaultFont());
-		g.drawString("Calibration", 5, 0, 0);
-		g.setFont(Font.getSmallFont());
-		g.drawString("If you have not already", 2, 20, 0);
-		g.drawString("connect your android phone", 2, 30, 0);
-		g.drawString("with the robot and enable", 2, 40, 0);
-		g.drawString("reverse tethering. Then open", 2, 50, 0);
-		g.drawString("the ALSET app and place the ", 2, 60, 0);
-		g.drawString("robot on the track it needs", 2, 70, 0); 
-		g.drawString("to follow. Tap the track on", 2, 80, 0);
-		g.drawString("the app to calibrate.", 2, 90, 0);
 		
-		// Enter GUI button:
-		g.fillRect(55, 100, 23, 23);
-		g.drawString("App is calibrated", 60, 107, 0,true);
+		//show calibration instructions
+		showInstructions();
 		Button.waitForAnyPress();
 		if(Button.ESCAPE.isDown()) System.exit(0);
-		g.clear();
+		
+		gLCD.clear();
+		//start program
 		Arbitrator arbitrator = new Arbitrator(
 				new Behavior[] {followTrack, findTrack, objectTraversal, pause, BTConnection}
 		);
@@ -162,21 +122,59 @@ public class Main {
 		CheckExit.start();
 		touch.start();
 		
-		Button.LEDPattern(1); //steady green light
+		//steady green light
+		Button.LEDPattern(1);
 		
 		//start movement
 		arbitrator.go();
-
 	}
 	
-	public static void setDistanceFromObject(float newDistanceFromObject) { DistanceFromObject = newDistanceFromObject; }
+	public static void showWelcome() {
+		gLCD.clear();
+		//title of screen
+		gLCD.setFont(Font.getDefaultFont());
+		gLCD.drawString("Welcome to ALSET", 5, 0, 0);
+		//text for screen
+		gLCD.setFont(Font.getSmallFont());//y coords increase by 10
+		gLCD.drawString("A path following robot", textX, 20, 0);
+		gLCD.drawString("", textX, 30, 0);
+		gLCD.drawString("Version 23.7", textX, 40, 0);
+		gLCD.drawString("", textX, 50, 0);
+		gLCD.drawString("Authors:", textX, 60, 0);
+		gLCD.drawString("Faeq Faisal", textX, 70, 0); 
+		gLCD.drawString("Leonardo Loureiro", textX, 80, 0);
+		gLCD.drawString("Morris Sardo", textX, 90, 0);
+		// Continue button
+		gLCD.fillRect(55, 100, 23, 23);
+		gLCD.drawString("Calibration", 60, 107, 0, true);
+	}
 	
-	public static float getDistanceFromObject() {return DistanceFromObject;}
+	public static void showInstructions(){
+		gLCD.clear();
+		//title of screen
+		gLCD.setFont(Font.getDefaultFont());
+		gLCD.drawString("Calibration", 5, 0, 0);
+		//text for screen
+		gLCD.setFont(Font.getSmallFont());//y coords increase by 10 
+		gLCD.drawString("If you have not already", textX, 20, 0);
+		gLCD.drawString("done so, open the ALSET", textX, 30, 0);
+		gLCD.drawString("app and place the robot", textX, 40, 0);
+		gLCD.drawString("on the track. Tap the", textX, 50, 0);
+		gLCD.drawString("track, on screen, to", textX, 60, 0);
+		gLCD.drawString("calibrate the app; you", textX, 70, 0); 
+		gLCD.drawString("may use the flashlight", textX, 80, 0);
+		gLCD.drawString("for better recognition.", textX, 90, 0);
+		// Continue button
+		gLCD.fillRect(55, 100, 23, 23);
+		gLCD.drawString("Execute", 60, 107, 0, true);
+	}
 	
-	public static void setMessageFromPhone(String message) {
-		System.out.println("setting message: "+message);
-		messageFromPhone = message;}
+	public static void setDistanceFromObject(float newDistanceFromObject){
+		DistanceFromObject = newDistanceFromObject;
+	}
 	
-	public static String getMessageFromPhone() {return messageFromPhone;}
+	public static float getDistanceFromObject(){
+		return DistanceFromObject;
+	}
 
 }

@@ -5,22 +5,14 @@ public class FollowTrack implements Behavior{
 	private boolean _suppressed = false;
 
 	@Override
-	public boolean takeControl() {
-//		try {
-//			return (Main.connectedToPhone) && !(Main.getMessageFromPhone().contains("no_track_found"));	
-//		} catch(NullPointerException e) {
-//			return false;
-//		}
-		return true;
-	}
+	public boolean takeControl() {return !(Main.touch.pause);} //Lowest behavior - should always return true
 
 	@Override
 	public void action() {
 		_suppressed = false;	
 		if (!_suppressed) {
-			String m = Main.getMessageFromPhone();
+			String m = Main.messageFromPhone;
 			if (m != null && !(m.contains("null"))){
-				System.out.println("a: "+m);
 				switch(m){
 					case "forward":
 						movement.forward();
