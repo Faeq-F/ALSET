@@ -1,18 +1,28 @@
+import lejos.hardware.lcd.LCD;
 import lejos.robotics.subsumption.Behavior;
 import lejos.utility.Delay;
 
 public class ObjectTraversal implements Behavior{
 	
+	//How close an obstruction should be from the robot before the object traversal behavior is executed.
+	private final static float distanceFromObject = 0.126f;
+	//delay to prevent further code from running too early in ObjectTraversal
+	private final static int delayOT = 1700;
 	//storing how far the motors have turned
 	private static int tach_start, tach_end;
 	
 	@Override
 	public boolean takeControl() {
-		return Main.connectedToPhone && (Main.getDistanceFromObject() < Main.distanceFromObject) && !(Main.touch.pause);
+		return Main.BTConnection.getConnectedToPhone()
+				&& (Main.ObjDet.getDistanceFromObject() < distanceFromObject)
+				&& !(Main.touch.pause);
 	}
 	
 	@Override
 	public void action() {
+		
+		LCD.clear();
+		LCD.drawString("Traversing Object", 0, 3);
 		
 		movement.stop();
 		//turn to try and go around the obstacle
@@ -26,9 +36,9 @@ public class ObjectTraversal implements Behavior{
 		tach_start = movement.getTachoCount();
 		movement.forward();
 		while(true)
-			if (Main.getDistanceFromObject() >= Main.distanceFromObject)
+			if (Main.ObjDet.getDistanceFromObject() >= distanceFromObject)
 				break;
-		Delay.msDelay(Main.delayOT);
+		Delay.msDelay(delayOT);
 		
 		//once the obstacle is no longer detected
 		movement.stop();
@@ -37,12 +47,12 @@ public class ObjectTraversal implements Behavior{
 		movement.turnRight(0, 0);
 		
 		movement.forward();
-		Delay.msDelay(Main.delayOT);
+		Delay.msDelay(delayOT);
 		// keep moving forward until side of obstacle can no longer be detected
 		while(true)
-			if (Main.getDistanceFromObject() >= Main.distanceFromObject)
+			if (Main.ObjDet.getDistanceFromObject() >= distanceFromObject)
 				break;
-		Delay.msDelay(Main.delayOT + 700);
+		Delay.msDelay(delayOT + 700);
 		
 		movement.stop();
 		movement.turnRight(0, 0);

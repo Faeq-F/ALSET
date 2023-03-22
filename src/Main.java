@@ -1,99 +1,32 @@
-import java.io.BufferedReader;
-import java.net.Socket;
-
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
-import lejos.hardware.port.MotorPort;
-import lejos.hardware.port.Port;
-import lejos.hardware.port.SensorPort;
-import lejos.hardware.sensor.EV3UltrasonicSensor;
-import lejos.hardware.sensor.NXTTouchSensor;
-import lejos.robotics.SampleProvider;
 import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
 import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.lcd.LCD;
-import lejos.hardware.motor.BaseRegulatedMotor;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.motor.EV3MediumRegulatedMotor;
 
 public class Main {
 	
-	public final static float LOW_BATTERY = 0.005f;
-	
 	private static GraphicsLCD gLCD = LocalEV3.get().getGraphicsLCD();
 	private static int textX = 2; //give text a little bit of padding on-screen
-	
-	public final static String PhoneIP = "10.0.1.2";
-	public final static int PhoneSocketPort = 1234;
-	public static boolean connectedToPhone = false;
-	public static String messageFromPhone;
-	public static Socket clientSocket;
-	public static BufferedReader in;
-	
-	private final static Port TouchSensorPort = SensorPort.S4;
-	public static float[] touched = new float[1];
-	public static NXTTouchSensor TouchSensor;
-	public static SampleProvider spTouch;
-	public static TouchThread touch;
-	
-	private final static Port UltraSonicSensorPort = SensorPort.S1;
-	private final static Port UltraSonicMotorPort = MotorPort.C;
-	public static EV3UltrasonicSensor UltraSonicSensor;
-	public static float[] distance = new float[1];
-	private static float DistanceFromObject;
-	public static SampleProvider spUS;
-	//How close an obstruction should be from the robot before the object traversal behavior is executed.
-	public final static float distanceFromObject = 0.126f;
-	//delay to prevent further code from running too early in ObjectTraversal
-	public final static int delayOT = 1700;
-	
-	public final static Port LeftMotorPort = MotorPort.A;
-	public final static Port RightMotorPort = MotorPort.D;
-	public final static int speed = 200; //decided upon as an appropriate speed
-	//How long (ms) to go backward for before turning when there is no obstacle
-	public final static long BackwardsTurnNoObstacle = 1240;
-	//number of degrees to turn motors by, after turning when there is no obstacle
-	public final static int forwardTurnNoObstacle = 500;
-	//how much the motor needs to rotate by (degrees) to make the robot turn ~90 degrees
-	public final static int ROT90DEGREES = 227;
-	// motors for the robot
-	public static BaseRegulatedMotor mL;
-	public static BaseRegulatedMotor mR;
-	public static BaseRegulatedMotor mUltraSonic;
-	//find track behavior for when followTrack can't run
-	public static FindTrack findTrack;
-	//Pause behavior for when user touches the touchSensor
-	public static Pause pause;
 
 	public static void main(String[] args) {
 		
-		//Initializing motors
-		mUltraSonic = new EV3MediumRegulatedMotor(Main.UltraSonicMotorPort);
-		mL = new EV3LargeRegulatedMotor(Main.LeftMotorPort);
-		mR = new EV3LargeRegulatedMotor(Main.RightMotorPort);
-		movement.setSpeed(Main.speed);
-		mL.synchronizeWith(new BaseRegulatedMotor[] {mR});
-		
-		//Initializing sensors
-		TouchSensor = new NXTTouchSensor(TouchSensorPort);
-		UltraSonicSensor = new EV3UltrasonicSensor(UltraSonicSensorPort);
-		//Initializing sample providers
-		spTouch = TouchSensor.getTouchMode();
-		spUS = UltraSonicSensor.getDistanceMode();
+		//initializing motors
+		movement.initialiseAll();
 		
 		//Initializing behaviors
 		findTrack = new FindTrack();
 		ObjectTraversal objectTraversal = new ObjectTraversal();
 		FollowTrack followTrack = new FollowTrack();
-		BluetoothConnection BTConnection = new BluetoothConnection();
+		BTConnection = new BluetoothConnection();
 		pause = new Pause();
 		
 		//Initializing threads
 		ExitThread CheckExit = new ExitThread(); 
 		BluetoothInfo BTInfo = new BluetoothInfo();
-		ObjectDetection ObjDet = new ObjectDetection();
+		ObjDet = new ObjectDetection();
 		touch = new TouchThread();
 		
 		//flashing green light
@@ -169,12 +102,11 @@ public class Main {
 		gLCD.drawString("Execute", 60, 107, 0, true);
 	}
 	
-	public static void setDistanceFromObject(float newDistanceFromObject){
-		DistanceFromObject = newDistanceFromObject;
-	}
+	public static BluetoothConnection BTConnection;
+	public static FindTrack findTrack;
+	public static Pause pause;
 	
-	public static float getDistanceFromObject(){
-		return DistanceFromObject;
-	}
+	public static TouchThread touch;
+	public static ObjectDetection ObjDet;
 
 }

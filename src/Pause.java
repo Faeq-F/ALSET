@@ -1,3 +1,4 @@
+import lejos.hardware.lcd.LCD;
 import lejos.robotics.subsumption.Behavior;
 
 public class Pause implements Behavior{
@@ -8,8 +9,10 @@ public class Pause implements Behavior{
 	@Override
 	public void action() {
 		movement.stop();
+		LCD.clear();
+		LCD.drawString("Paused", 0, 3);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(400);
 		} catch (InterruptedException e) {
 			System.out.println("Could not sleep in paused behavior");
 		}
