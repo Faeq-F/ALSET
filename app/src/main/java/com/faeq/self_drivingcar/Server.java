@@ -121,14 +121,13 @@ public class Server {
                     synchronized (Server.this) {
                         switch (mState) {
                             case STATE_LISTEN:
-                                // Situation normal. Start the connected thread.
                                 String name = getEV3name();
                                 if (name == null) {
                                     try {
                                         socket.close();
                                     } catch (IOException e) {
                                         Log.e(TAG, "Could not close unwanted socket", e);
-                                    }
+                                    }// EV3 is connected - Start sending messages
                                 } else connected(socket, name);
                                 break;
                             case STATE_NONE:

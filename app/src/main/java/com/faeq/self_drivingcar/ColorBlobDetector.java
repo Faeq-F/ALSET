@@ -61,7 +61,7 @@ public class ColorBlobDetector {
         //Converting spectrum from HSV to RGB
         cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
     }
-    //------------------------------------------------------------------------------------------------------
+
     public void process(Mat rgbaImage) {
         //Blur & down-sample
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);

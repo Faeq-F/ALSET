@@ -67,6 +67,7 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
     }
 
     private boolean lightOn = false;
+
     public void toggleLight(){
         Camera.Parameters params = mCamera.getParameters();
         if (lightOn){
@@ -185,10 +186,9 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
                     {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
-                    //Added parameters for self-driving car app
+                    //Added parameters for ALSET car app
                     params.setPreviewFpsRange(15000,24000);//frame rate between 15 & 24 fps
                     //params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                    //params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
 
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
