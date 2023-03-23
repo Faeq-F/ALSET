@@ -8,16 +8,16 @@ import lejos.utility.Delay;
 public class movement {
 	
 	private final static Port UltraSonicMotorPort = MotorPort.C;
-	public final static Port LeftMotorPort = MotorPort.A;
-	public final static Port RightMotorPort = MotorPort.D;
-	public final static int speed = 200; //decided upon as an appropriate speed
+	private final static Port LeftMotorPort = MotorPort.A;
+	private final static Port RightMotorPort = MotorPort.D;
+	private final static int speed = 200; //decided upon as an appropriate speed
 	//how much the motor needs to rotate by (degrees) to make the robot turn ~90 degrees
-	public final static int ROT90DEGREES = 227;
+	private final static int ROT90DEGREES = 227;
 	
 	// motors for the robot
-	public static BaseRegulatedMotor mL;
-	public static BaseRegulatedMotor mR;
-	public static BaseRegulatedMotor mUltraSonic;
+	private static BaseRegulatedMotor mL;
+	private static BaseRegulatedMotor mR;
+	private static BaseRegulatedMotor mUltraSonic;
 	
 	public static void initialiseAll() {
 		mUltraSonic = new EV3MediumRegulatedMotor(UltraSonicMotorPort);
@@ -53,7 +53,7 @@ public class movement {
 	
 	/**
 	 * moves the robot forward
-	 * @param degrees to rotate motor by
+	 * @param degrees to rotate motors by
 	 */
 	public static void forward(int degrees) {
 		mL.startSynchronization();
@@ -126,7 +126,8 @@ public class movement {
 		mR.setSpeed(speed);
 	}
 	
-	/**returns how far the wheel motors have turned
+	/**
+	 * returns how far the wheel motors have turned
 	 * @return the tachometer count
 	 */
 	public static int getTachoCount() {

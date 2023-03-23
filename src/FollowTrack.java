@@ -4,40 +4,38 @@ import lejos.robotics.subsumption.Behavior;
 public class FollowTrack implements Behavior{
 	
 	//How long (ms) to go backward for before turning when there is no obstacle
-	private final static long BackwardsTurnNoObstacle = 1240;
+	private final static long backward = 1240;
 	//number of degrees to turn motors by, after turning when there is no obstacle
-	private final static int forwardTurnNoObstacle = 500;
+	private final static int forward = 500;
 	private boolean _suppressed = false;
 
 	@Override
-	public boolean takeControl() {return !(Main.touch.pause);}
+	public boolean takeControl() {
+		return !(Main.getTouch().isPaused()) && Main.getBTconnection().isConnectedToPhone();
+	}
 
 	@Override
 	public void action() {
 		_suppressed = false;	
 		if (!_suppressed) {
-			try {
-				String m = Main.BTConnection.getMessageFromPhone();
+			String m = Main.getBTconnection().getMessageFromPhone();
+			if (m != null && !(m.contains("null"))){
 				LCD.clear();
 				LCD.drawString(m, 0, 3);
-				if (m != null && !(m.contains("null"))){
-					switch(m){
-						case "forward":
-							movement.forward();
-							break;
-						case "rotate_left":
-							movement.turnLeft(BackwardsTurnNoObstacle, forwardTurnNoObstacle);
-							break;
-						case "rotate_right":
-							movement.turnRight(BackwardsTurnNoObstacle, forwardTurnNoObstacle);
-							break;
-						default:
-							Main.findTrack.action();
-							break;
-					}
+				switch(m){
+				case "forward":
+					movement.forward();
+					break;
+				case "rotate_left":
+					movement.turnLeft(backward, forward);
+					break;
+				case "rotate_right":
+					movement.turnRight(backward, forward);
+					break;
+				default://increased reliability
+					Main.getFTbehavior().action();
+					break;
 				}
-			} catch(Exception e) {
-				//connection to phone is not established yet - let higher behavior deal with it
 			}
 		}
 	}

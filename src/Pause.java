@@ -4,13 +4,14 @@ import lejos.robotics.subsumption.Behavior;
 public class Pause implements Behavior{
 
 	@Override
-	public boolean takeControl() {return true;} //Lowest behavior - should always return true
+	public boolean takeControl() {
+		return true; //Lowest behavior - should always return true
+	}
 
 	@Override
 	public void action() {
 		movement.stop();
-		LCD.clear();
-		LCD.drawString("Paused", 0, 3);
+		LCD.drawString("Paused", 0, 2);
 		try {
 			Thread.sleep(400);
 		} catch (InterruptedException e) {

@@ -11,8 +11,8 @@ public class BluetoothConnection implements Behavior{
 	private final static int PhoneSocketPort = 1234;
 	private static boolean connectedToPhone = false;
 	private static String messageFromPhone;
-	public static Socket clientSocket;
-	public static BufferedReader in;
+	private static Socket clientSocket;
+	private static BufferedReader in;
 	private boolean _suppressed = false;
 	
 	@Override
@@ -52,7 +52,7 @@ public class BluetoothConnection implements Behavior{
 		connectedToPhone = b;
 	}
 	
-	public boolean getConnectedToPhone(){
+	public boolean isConnectedToPhone(){
 		return connectedToPhone;
 	}
 	

@@ -13,9 +13,9 @@ public class ObjectTraversal implements Behavior{
 	
 	@Override
 	public boolean takeControl() {
-		return Main.BTConnection.getConnectedToPhone()
-				&& (Main.ObjDet.getDistanceFromObject() < distanceFromObject)
-				&& !(Main.touch.pause);
+		return Main.getBTconnection().isConnectedToPhone()
+			&& (Main.getUSval().getDistanceFromObject() < distanceFromObject)
+			&& !(Main.getTouch().isPaused());
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class ObjectTraversal implements Behavior{
 		tach_start = movement.getTachoCount();
 		movement.forward();
 		while(true)
-			if (Main.ObjDet.getDistanceFromObject() >= distanceFromObject)
+			if (Main.getUSval().getDistanceFromObject() >= distanceFromObject)
 				break;
 		Delay.msDelay(delayOT);
 		
@@ -50,13 +50,14 @@ public class ObjectTraversal implements Behavior{
 		Delay.msDelay(delayOT);
 		// keep moving forward until side of obstacle can no longer be detected
 		while(true)
-			if (Main.ObjDet.getDistanceFromObject() >= distanceFromObject)
+			if (Main.getUSval().getDistanceFromObject() >= distanceFromObject)
 				break;
-		Delay.msDelay(delayOT + 700);
+		Delay.msDelay(delayOT + 700); // 700; ensure the phone can pass by as well 
 		
 		movement.stop();
 		movement.turnRight(0, 0);
-		// go forward the number of revolutions the motors initially turned to get back to the position of the track
+		// go forward the number of revolutions the motors
+		//initially turned to get back to the position of the track
 		movement.forward((int) tach_end - tach_start);
 		movement.stop();
 		

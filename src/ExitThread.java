@@ -13,14 +13,16 @@ public class ExitThread extends Thread{
 		while (true){
 			if(Button.ESCAPE.isDown() || (Battery.getVoltage() < LOW_BATTERY)) {
 				System.exit(0);
-				Main.ObjDet.closeSensor();
-				Main.touch.closeSensor();
+				//close all sensors & connections
+				Main.getUSval().closeSensor();
+				Main.getTouch().closeSensor();
 				try {
-					Main.BTConnection.close();
+					Main.getBTconnection().close();
 				} catch (IOException e) {
-					System.out.println("couldn't close socket");
-					System.exit(0); //force close
+					System.out.println("socket already closed");
 				}
+				//exit program
+				System.exit(0);
 			}
 		}
 	}

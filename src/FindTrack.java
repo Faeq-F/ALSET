@@ -8,10 +8,10 @@ public class FindTrack implements Behavior{
 	@Override
 	public boolean takeControl() {
 		try {
-			return Main.BTConnection.getConnectedToPhone()
-					&& Main.BTConnection.getMessageFromPhone().contains("no_track_found")
-					&& !(Main.touch.pause);
-		} catch(NullPointerException e) {
+			return Main.getBTconnection().isConnectedToPhone()
+				&& Main.getBTconnection().getMessageFromPhone().contains("no_track_found")
+				&& !(Main.getTouch().isPaused());
+		} catch(Exception e) {
 			return false;
 		}
 	} 
@@ -21,12 +21,9 @@ public class FindTrack implements Behavior{
 		_suppressed = false;
 		if (!_suppressed) {
 			movement.stop();
-			try {
-				LCD.clear();
-				LCD.drawString("No Track Found", 0, 3);
-			} catch(Exception e) {
-				//connection to phone is not established yet - let higher behavior deal with it
-			}
+			LCD.clear();
+			LCD.drawString("No Track Found", 0, 3);
+			//go in pattern to find the track
 		}
 	}
 

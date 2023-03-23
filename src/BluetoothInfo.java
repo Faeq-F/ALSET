@@ -8,14 +8,14 @@ public class BluetoothInfo extends Thread{
 		try {
 			String message;
 			while (true) {
-				if (Main.BTConnection.getConnectedToPhone()) {
-					message = Main.BTConnection.readLine();
+				if (Main.getBTconnection().isConnectedToPhone()) {
+					message = Main.getBTconnection().readLine();
 					if (message == null || message.contains("null")){
-						Main.BTConnection.setConnectedToPhone(false);
+						Main.getBTconnection().setConnectedToPhone(false);
 						continue;
-					} else if (message == "")
+					} else if (message == "") // increased reliability
 						message = "no_track_found";
-					Main.BTConnection.setMessageFromPhone(message);
+					Main.getBTconnection().setMessageFromPhone(message);
 				}
 			}
 		} catch (IOException e) {

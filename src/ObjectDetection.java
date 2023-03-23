@@ -1,3 +1,4 @@
+import lejos.hardware.lcd.LCD;
 import lejos.hardware.port.Port;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
@@ -18,12 +19,9 @@ public class ObjectDetection extends Thread {
 	
 	public void run() {
 		while (true){
-			try {
-				spUS.fetchSample(distance, 0) ;
-				DistanceFromObject = distance[0];
-			} catch (Exception e) {
-				break; //sensor was closed
-			}
+			spUS.fetchSample(distance, 0) ;
+			DistanceFromObject = distance[0];
+			LCD.drawString(String.valueOf(DistanceFromObject), 0, 4);
 		}
 	}
 	

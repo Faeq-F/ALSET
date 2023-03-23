@@ -9,25 +9,25 @@ import lejos.hardware.lcd.LCD;
 public class Main {
 	
 	private static GraphicsLCD gLCD = LocalEV3.get().getGraphicsLCD();
-	private static int textX = 2; //give text a little bit of padding on-screen
+	private static int textX = 2; //give text a bit of padding on-screen
 
 	public static void main(String[] args) {
 		
-		//initializing motors
+		//initializing motors (run independent)
 		movement.initialiseAll();
 		
-		//Initializing behaviors
+		//Initializing threads (run independent)
+		ExitThread CheckExit = new ExitThread(); 
+		BluetoothInfo BTInfo = new BluetoothInfo();
+		ObjDet = new ObjectDetection();
+		touch = new TouchThread();
+		
+		//Initializing behaviors (run independent)
 		findTrack = new FindTrack();
 		ObjectTraversal objectTraversal = new ObjectTraversal();
 		FollowTrack followTrack = new FollowTrack();
 		BTConnection = new BluetoothConnection();
 		pause = new Pause();
-		
-		//Initializing threads
-		ExitThread CheckExit = new ExitThread(); 
-		BluetoothInfo BTInfo = new BluetoothInfo();
-		ObjDet = new ObjectDetection();
-		touch = new TouchThread();
 		
 		//flashing green light
 		Button.LEDPattern(4);
@@ -48,6 +48,8 @@ public class Main {
 		Arbitrator arbitrator = new Arbitrator(
 				new Behavior[] {pause, followTrack, findTrack, objectTraversal, BTConnection}
 		);
+		LCD.clear();
+		gLCD.clear();
 		
 		//starting threads
 		BTInfo.start();
@@ -62,12 +64,15 @@ public class Main {
 		arbitrator.go();
 	}
 	
+	/**
+	 * Shows the welcome screen on the EV3 LCD display
+	 */
 	public static void showWelcome() {
 		gLCD.clear();
 		//title of screen
 		gLCD.setFont(Font.getDefaultFont());
 		gLCD.drawString("Welcome to ALSET", 5, 0, 0);
-		//text for screen
+		//text for screen (line height is 10 with small font)
 		gLCD.setFont(Font.getSmallFont());//y coords increase by 10
 		gLCD.drawString("A path following robot", textX, 20, 0);
 		gLCD.drawString("", textX, 30, 0);
@@ -78,16 +83,20 @@ public class Main {
 		gLCD.drawString("Leonardo Loureiro", textX, 80, 0);
 		gLCD.drawString("Morris Sardo", textX, 90, 0);
 		// Continue button
-		gLCD.fillRect(55, 100, 23, 23);
+		gLCD.fillRect(55, 100, 23, 23);//x, y, w, h randomly chosen - doesn't matter, just visual
 		gLCD.drawString("Calibration", 60, 107, 0, true);
 	}
 	
+	/**
+	 * Shows the calibration instructions screen on the EV3 LCD display.
+	 * (To help initial, run dependent calibration)
+	 */
 	public static void showInstructions(){
 		gLCD.clear();
 		//title of screen
 		gLCD.setFont(Font.getDefaultFont());
 		gLCD.drawString("Calibration", 5, 0, 0);
-		//text for screen
+		//text for screen (line height is 10 with small font)
 		gLCD.setFont(Font.getSmallFont());//y coords increase by 10 
 		gLCD.drawString("If you have not already done", textX, 20, 0);
 		gLCD.drawString("so, open the ALSET app and", textX, 30, 0);
@@ -98,15 +107,33 @@ public class Main {
 		gLCD.drawString("you may use the flashlight", textX, 80, 0);
 		gLCD.drawString("for better recognition.", textX, 90, 0);
 		// Continue button
-		gLCD.fillRect(55, 100, 23, 23);
+		gLCD.fillRect(55, 100, 23, 23);//x, y, w, h randomly chosen - doesn't matter, just visual
 		gLCD.drawString("Execute", 60, 107, 0, true);
 	}
 	
-	public static BluetoothConnection BTConnection;
-	public static FindTrack findTrack;
-	public static Pause pause;
+	private static ObjectDetection ObjDet;
+	public static ObjectDetection getUSval(){
+		return ObjDet;
+	}
 	
-	public static TouchThread touch;
-	public static ObjectDetection ObjDet;
+	private static TouchThread touch;
+	public static TouchThread getTouch(){
+		return touch;
+	}
+	
+	private static Pause pause;
+	public static Pause getPause(){
+		return pause;
+	}
+	
+	private static FindTrack findTrack;
+	public static FindTrack getFTbehavior(){
+		return findTrack;
+	}
+	
+	private static BluetoothConnection BTConnection;
+	public static BluetoothConnection getBTconnection(){
+		return BTConnection;
+	}
 
 }

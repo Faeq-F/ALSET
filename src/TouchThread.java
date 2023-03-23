@@ -9,7 +9,7 @@ public class TouchThread extends Thread{
 	private static float[] touched = new float[1];
 	private static NXTTouchSensor touchSensor;
 	private static SampleProvider spTouch;
-	public boolean pause = false;
+	private boolean pause = false;
 	
 	TouchThread(){
 		touchSensor = new NXTTouchSensor(touchSensorPort);
@@ -19,7 +19,7 @@ public class TouchThread extends Thread{
 	public void run(){
 		while (true) {
 			try {
-				spTouch.fetchSample(touched,0);
+				spTouch.fetchSample(touched, 0);
 				boolean pressed = touched[0] == 1.0;
 				if (pressed && (!pause)) {
 					movement.stop();
