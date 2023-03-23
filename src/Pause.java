@@ -12,11 +12,6 @@ public class Pause implements Behavior{
 	public void action() {
 		movement.stop();
 		LCD.drawString("Paused", 0, 2);
-		try {
-			Thread.sleep(400);
-		} catch (InterruptedException e) {
-			System.out.println("Could not sleep in paused behavior");
-		}
 	}
 
 	@Override
